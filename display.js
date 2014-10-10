@@ -4,10 +4,17 @@ function display() {
 
 	this.background = $('#background');			// background div
 	this.wrapper = $('#wrapper');				// wrapper div
+
+	this.layouts = [];							// holds all layouts - game, lobby, admin
+	this.activeLayout = '';	
 	
 	window.addEventListener('resize', this.resize.bind(this), false);
+	this.resize();
+	
+	this.width = this.wrapper.width();
+	this.height = this.wrapper.height();
+}
 
-<<<<<<< HEAD
 
 // inititalizes display object
 display.prototype.init = function() {
@@ -24,10 +31,6 @@ display.prototype.init = function() {
 	});
 	
 	// choose activelayout
-=======
-	this.layouts;								// holds all layouts - game, lobby, admin
-	this.activeLayout;							
->>>>>>> parent of 8ffafa0... layout/block setup
 	
 }
 
@@ -42,21 +45,24 @@ display.prototype.changeLayout = function(layout) {
 	
 // resizes display, then resizes layout
 display.prototype.resize = function() {  
-
-	// resize background and wrapper here
 	
-	var r = this.aspectRatio = { x: 1224, y: 870 }; //aspect ratio to maintain (background image size)
-	//might want to move aspectRatio somewhere else?
+	var width = this.background.width();
+	var height = this.background.height();
+	
+	var r = this.aspect = { x: 4, y: 3 }; //aspect ratio to maintain (background image size)
 	
 	//get maximum screen size
 	var max = { x: this.background.width(), y: this.background.height() };
 	
-	//figure out maximum resolution while maintaining aspect ratio
-    if ((max.x / r.x) * r.y > max.y) { max.x = (max.y / r.y) * r.x; } //limiting factor is height->adjust width
-	else { max.y = (max.x / r.x) * r.y; } //limiting factor is width->adjust height
+	//figure out maximum resolution while maintaining aspect ratio	
+	//limiting factor is height->adjust width
+    if ((max.x / r.x) * r.y > max.y) { 
+		max.x = (max.y / r.y) * r.x;
+	} else { //limiting factor is width->adjust height
+		max.y = (max.x / r.x) * r.y; 
+	} 
 	
-	//adjust background and wrapper
-
+	//adjust wrapper
 	this.wrapper.css("width", max.x);
 	this.wrapper.css("height", max.y);
 
@@ -75,7 +81,9 @@ display.prototype.resize = function() {
 	*/
 
 	// resize all layouts
-	//this.layout.resize();
+	this.layouts.forEach( function(layout) {
+		layout.resize(max.x, max.y);
+	});
 };	
 
 

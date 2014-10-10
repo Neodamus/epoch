@@ -3,7 +3,7 @@ function initEventListeners() {
 }
 
 
-var selectedGame;
+var selectedGame = { };
 
 function tableSelect(id, row) {
 
@@ -21,28 +21,27 @@ function tableSelect(id, row) {
 
 function addTable(a, b){
 
-    var row = $('#myTable')[0].insertRow(1);//insert new row
+    var row = $('#myTable')[0].insertRow(1);
 
     var createClickHandler =
         function(row)
         {
             return function() {
-                var cell = $("#myTable").find('td')[0]; //find row from parent table
-                var id = cell.innerHTML; //find the game name
-
+                var cell = row.getElementsByTagName("td")[0];
+                console.log(cell);
+                var id = cell.innerHTML;
                 tableSelect(id, row);
             };
         };
 
-    row.onclick = createClickHandler(row); //add onclick for the row
+    row.onclick = createClickHandler(row);
 
-    //add 2 cells
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
 
-    //label 2 cells
     cell1.innerHTML = a;
     cell2.innerHTML = b;
+
 }
 
 
