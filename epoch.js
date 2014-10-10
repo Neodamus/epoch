@@ -1,15 +1,10 @@
-var EOE;
-$(document).ready( function() { EOE = new epoch(); EOE.init(); } );
+$(document).ready(function() {	
+	epoch();
+});
 
 function epoch() {
 	
-	this.GLOBALS = new globals();
-	this.DISPLAY = new display();
-	this.SOCKET = new socket();
-	
-	initEventListeners();		
-}
-
-epoch.prototype.init = function() {	
-	this.DISPLAY.init();
+	var EOE = new globals();
+	var DISPLAY = new display();
+		
 }
