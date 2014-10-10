@@ -18,8 +18,9 @@ layout.prototype.init = function() {
 	var BLOCK;
 	
 	switch (this.name) {
-		case 'login': BLOCK = new block('login', 0, 0, w, h); break;	
-	}
+		case 'login': BLOCK = new block('login', 0, 0, w, h); break;
+        case 'lobby': BLOCK = new block('lobby', 0, 0, w, h); break;
+    }
 	
 	this.blocks.push(BLOCK);
 }

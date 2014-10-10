@@ -20,7 +20,10 @@ block.prototype.init = function() {
 	switch (this.name) {
 		case 'login': this.child = $('#login'); 
 			$('#loginButton').on('click', function() { SEND('login', $('#loginName').val()) });
-		break;	
+		break;
+
+        case 'lobby': this.child = $('#lobby');
+            break;
 	}
 	
 	this.child.width(this.width);

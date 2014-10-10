@@ -21,11 +21,11 @@ display.prototype.init = function() {
 	
 	var LAYOUTS = this.layouts;
 	
-	var width = this.width
+	var width = this.width;
 	var height = this.height;	
 	
 	// gather all layouts
-	var layouts = [ 'login' ];
+	var layouts = [ 'login', 'lobby'];
 	layouts.forEach( function(name) {
 		LAYOUTS.push( new layout(name, width, height) );
 	});

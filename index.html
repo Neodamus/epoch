@@ -2,6 +2,29 @@
 <head>
 <title>Epoch of Elements</title>
 <link rel="stylesheet" type="text/css" href="style.css">
+    <style>
+
+
+        table, td, th {
+            border: 1px solid gray;
+        }
+
+        th {
+            background-color: black;
+            color: white;
+        }
+        tr{
+            background-color: rgb(120,120,120);
+            color: black;
+
+        }
+        caption{
+            background-color: black;
+            color: wheat;
+            border: 1px solid gray;
+        }
+
+    </style>
 </head>
 
 <body>
@@ -13,11 +36,25 @@
         Login: <input type="text" id="loginName"><input type="button" id="loginButton" value="Login">
         </div>        
 	</div>
+
+    <div class="block" id="lobby"
+         style="border: 1px solid gray;background-color:rgb(21,21,21);
+         height:100px;left:400px; width:300px;overflow-y: scroll;z-index: 10;
+         position:absolute;">
+
+        <table id="myTable" style="width:100%;">
+            <caption >Game Listing</caption>
+            <tr>
+                <th>Game Name</th>
+                <th>Host</th>
+            </tr>
+        </table>
+    </div>
     
 </div>
 </div>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="jquery-1.11.1.min.js"></script>
 <script src="easeljs-0.7.1.min.js"></script>
 <script src="preloadjs-0.4.1.min.js"></script>
 <script src="soundjs-0.5.2.min.js"></script>
