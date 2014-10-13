@@ -3,66 +3,53 @@
 <title>Epoch of Elements</title>
 <link href='http://fonts.googleapis.com/css?family=Philosopher' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="style.css">
-    <style>
-
-
-        table, td, th {
-            border: 1px solid gray;
-        }
-
-        th {
-            background-color: black;
-            color: white;
-        }
-        tr{
-            background-color: rgb(120,120,120);
-            color: black;
-
-        }
-        caption{
-            background-color: black;
-            color: wheat;
-            border: 1px solid gray;
-        }
-
-    </style>
 </head>
 
 <body>
 <div id="background">
 <div id="wrapper" class="center">
 
-	<div id="login" class="block center">
-		<div id="login-menu" class="center">
+	<div id="login" class="layout">
+		<div id="login-menu" class="center block">
         	<div id="login-menu-text" class="row">Enter</div>
             <div id="login-menu-input" class="row"><input type="text" id="loginName" class="center"></div>
             <div id="login-menu-submit" class="row"><input type="button" id="loginButton" value="Login"></div>
-        </div>        
+        </div>       
 	</div>
 
-    <div class="block" id="lobby"
-         style="border: 1px solid gray;background-color:rgb(21,21,21);
-         height:100px;left:400px; width:300px;overflow-y: scroll;z-index: 10;
-         position:absolute;">
-
-        <table id="myTable" style="width:100%;">
-            <caption >Game Listing</caption>
-            <tr>
-                <th>Game Name</th>
-                <th>Host</th>
-            </tr>
-        </table>
+    <div id="lobby" class="layout">
+    	<div id="lobby-games" class="block">
+            <table id="myTable" style="width:100%;">
+                <caption >Game Listing</caption>
+                <tr>
+                    <th>Game Name</th>
+                    <th>Host</th>
+                </tr>
+            </table>
+        </div>
+        <div id="lobby-users" class="block">
+        	<select multiple id="lobby-users-child"></select>
+        </div>
+        <div id="lobby-chat" class="block">
+        </div>
+        <div id="lobby-chat-input" class="block">
+        	<div style="height: 100%; padding: 0 10px;">
+                <input style="width: 75%; height: 24px; position: absolute; top: 0; bottom: 0; margin: auto; padding: 0 10px;" type="text" id="lobby-chat-input-text" placeholder="Chat here">
+            </div>
+        	<div style="height: 100%;">            
+                <input style="width: 10%; height: 24px; position: absolute; top: 0; bottom: 0; left: 85%; margin: auto;"type="button" id="lobby-chat-input-button" value="Send">
+            </div>
+        </div>
     </div>
     
 </div>
 </div>
 
-<script src="jquery-2.1.1.min.js"></script>
-<script src="easeljs-0.7.1.min.js"></script>
-<script src="preloadjs-0.4.1.min.js"></script>
-<script src="soundjs-0.5.2.min.js"></script>
-<script src="tweenjs-0.5.1.min.js"></script>
-<script src="globals.js"></script>
+<script src="lib/jquery-2.1.1.min.js"></script>
+<script src="lib/easeljs-0.7.1.min.js"></script>
+<script src="lib/preloadjs-0.4.1.min.js"></script>
+<script src="lib/soundjs-0.5.2.min.js"></script>
+<script src="lib/tweenjs-0.5.1.min.js"></script>
 <script src="display.js"></script>
 <script src="layout.js"></script>
 <script src="block.js"></script>

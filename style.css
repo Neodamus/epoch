@@ -6,7 +6,11 @@ html, body {
 	font-family: 'Philosopher', sans-serif;
 }
 
-input {	font-family: 'Philosopher', sans-serif;	}
+input, select {	font-family: 'Philosopher', sans-serif;	}
+table, td, th { border: 1px solid gray; }
+th { background-color: black; color: white; }
+tr { background-color: rgb(120,120,120); color: black; }
+caption{ background-color: black; color: wheat; border: 1px solid gray; }
 
 #background { 
 	width: 100%; 
@@ -15,7 +19,7 @@ input {	font-family: 'Philosopher', sans-serif;	}
 }
 
 #wrapper	{ 
-	background-color: white; 
+	background-color: #CCC;
 	margin: auto; 
 	min-width: 400px;
 	min-height: 300px;
@@ -36,7 +40,11 @@ input {	font-family: 'Philosopher', sans-serif;	}
 	 margin: auto;		
 }
 
-.block { visibility: hidden; position: absolute; }
+.left { float: left; }
+.right { float: right; }
+
+.layout { visibility: hidden; position: absolute; top: -1000px; }
+.block { position: absolute; border: solid #BBB 2px; background-color: #666 }
 
 #login-menu { width: 240px; height: 180px; background-color: black; border: 3px solid gray; }
 #login-menu-text { color: white; text-align: center; font-size: 24px; margin: 20px 0; }
@@ -44,3 +52,10 @@ input {	font-family: 'Philosopher', sans-serif;	}
 #login-menu-submit { }
 #loginName { text-align: center; width: 70%; height: 24px; font-size: 20px; }
 #loginButton { display: block; margin: 20px auto; font-size: 16px;}
+
+#lobby { }
+#lobby-games { }
+#lobby-users { overflow: hidden; }
+#lobby-users-child { width: 120%; height: 100%; }
+#lobby-chat { }
+#lobby-chat-input { }

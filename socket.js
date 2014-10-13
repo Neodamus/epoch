@@ -1,6 +1,6 @@
-function socket() {	
+function SOCKET() {	
 	this.ws = new WebSocket('ws://eoe-neodamus.rhcloud.com:8000');	
-	this.ws.onopen = function() { /*do nothing*/ }	
+	this.ws.onopen = function() { getBlock('login').login(); }	
 	this.ws.onmessage = function(message) {	RECEIVE(message.data); }
 	this.ws.onclose = function() { /*do nothing*/ }
 }
@@ -8,7 +8,7 @@ function socket() {
 
 // send websocket message
 function SEND(id, data) {	
-	EOE.SOCKET.ws.send( JSON.stringify( { id: id, data: data } ));
+	EOE.socket.ws.send( JSON.stringify( { id: id, data: data } ));
 }
 
 
@@ -19,11 +19,11 @@ function RECEIVE(data) {
 	var packet = JSON.parse(data);	
 	var id = packet.id;
 	var data = packet.data;
-	/*
+	
 	switch(id) {
-		case 'connected': SEND('login', 'j'); break;
+		case 'loginSuccess': getBlock('login').loginSuccess(data); break;
+		case 'usersList': getBlock('lobby-users').receiveUsersList(data); break;
 	}
-	*/
 }
 
 

@@ -1,7 +1,8 @@
 // layout
 
-function layout(name, width, height) {	
+function LAYOUT(name, width, height) {	
 	this.name = name;
+	this.element = null;			// div surrounding all child blocks
 	this.width = width;
 	this.height = height;
 	this.blocks = [];
@@ -11,29 +12,66 @@ function layout(name, width, height) {
 
 
 // initialize the layout
-layout.prototype.init = function() {
-	
-	var w = this.width;
-	var h = this.height;
-	var BLOCK;
+LAYOUT.prototype.init = function() {
 	
 	switch (this.name) {
-		case 'login': BLOCK = new block('login', 0, 0, w, h); break;
-        case 'lobby': BLOCK = new block('lobby', 0, 0, w, h); break;
+		case 'login': 
+			this.element = $('#login');
+			this.blocks.push ( new BLOCK('login', 0, 0, 1, 1) ); 
+		break;
+		
+        case 'lobby': 
+			this.element = $('#lobby');
+			this.blocks.push( new BLOCK('lobby-games', 0.02, 0.02, 0.7, 0.4) ); 
+			this.blocks.push( new BLOCK('lobby-users', 0.75, 0.02, 0.22, 0.95) ); 
+			this.blocks.push( new BLOCK('lobby-chat', 0.02, 0.45, 0.7, 0.4) ); 
+			this.blocks.push( new BLOCK('lobby-chat-input', 0.02, 0.87, 0.7, 0.1) ); 
+		break;
     }
 	
-	this.blocks.push(BLOCK);
+	this.hide();
 }
 
 
 // resize the layout
-layout.prototype.resize = function(width, height) {
+LAYOUT.prototype.resize = function(width, height) {
 	
 	this.width = width;
 	this.height = height;
 	
+	this.element.width(width);
+	this.element.height(height);
+	
 	// resize all blocks
 	this.blocks.forEach( function(block) {
 		block.resize(width, height);	
+	});
+}
+
+
+// hide the layout
+LAYOUT.prototype.hide = function() {
+	
+	this.element.css('visibility', 'hidden');
+	this.element.css('top', '-1000px');
+	this.element.css('width', '0');
+	this.element.css('height', '0');
+	
+	this.blocks.forEach( function(block) {
+		block.hide();
+	});	
+}
+
+
+// show the layout
+LAYOUT.prototype.show = function() {
+	
+	this.element.css('visibility', 'visible');
+	this.element.css('top', '0');
+	this.element.css('width', this.width + 'px');
+	this.element.css('height', this.height + 'px');	
+	
+	this.blocks.forEach( function(block) {
+		block.show();
 	});
 }

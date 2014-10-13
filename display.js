@@ -1,12 +1,12 @@
 // display
 
-function display() {
+function DISPLAY() {
 
 	this.background = $('#background');			// background div
 	this.wrapper = $('#wrapper');				// wrapper div
 
 	this.layouts = [];							// holds all layouts - game, lobby, admin
-	this.activeLayout = '';	
+	this.activeLayout = null;					// layout object
 	
 	window.addEventListener('resize', this.resize.bind(this), false);
 	this.resize();
@@ -17,34 +17,45 @@ function display() {
 
 
 // inititalizes display object
-display.prototype.init = function() {
+DISPLAY.prototype.init = function() {
 	
-	var LAYOUTS = this.layouts;
+	var layouts = this.layouts;
 	
 	var width = this.width;
 	var height = this.height;	
 	
 	// gather all layouts
-	var layouts = [ 'login', 'lobby'];
-	layouts.forEach( function(name) {
-		LAYOUTS.push( new layout(name, width, height) );
+	var layoutNames = [ 'login', 'lobby' ];
+	layoutNames.forEach( function(name) {
+		var layout = new LAYOUT(name, width, height);
+		layout.resize(width, height);
+		layouts.push(layout);
 	});
 	
 	// choose activelayout
+	if (localStorage.EOE_username) {
+		this.activeLayout = layouts[1];
+	} else {
+		this.activeLayout = layouts[0];		
+	}
 	
+	this.activeLayout.show();
 }
 
 	
 // turns off active layout, displays new layout
-display.prototype.changeLayout = function(layout) { 		
-	this.activeLayout.hide();
-	this.activeLayout = layout;
-	layout.show();
+DISPLAY.prototype.changeLayout = function(name) { 
+	var activeLayout = this.activeLayout;		
+	activeLayout.hide();
+	this.layouts.forEach( function(layout) {
+		if (layout.name == name) { activeLayout = layout; }
+	});
+	activeLayout.show();
 };
 	 			
 	
 // resizes display, then resizes layout
-display.prototype.resize = function() {  
+DISPLAY.prototype.resize = function() {  
 	
 	var width = this.background.width();
 	var height = this.background.height();
