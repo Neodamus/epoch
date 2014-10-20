@@ -24,8 +24,14 @@ LAYOUT.prototype.init = function() {
 			this.element = $('#lobby');
 			this.blocks.push( new BLOCK('lobby-games', 0.02, 0.02, 0.7, 0.4) ); 
 			this.blocks.push( new BLOCK('lobby-users', 0.75, 0.02, 0.22, 0.95) ); 
-			this.blocks.push( new BLOCK('lobby-chat', 0.02, 0.45, 0.7, 0.4) ); 
-			this.blocks.push( new BLOCK('lobby-chat-input', 0.02, 0.87, 0.7, 0.1) ); 
+			this.blocks.push( new BLOCK('lobby-chat', 0.02, 0.45, 0.7, 0.45) ); 
+			this.blocks.push( new BLOCK('lobby-chat-input', 0.02, 0.92, 0.7, 0.05) ); 
+		break;
+		
+		case 'epoch':
+			this.element = $('#epoch');
+			this.blocks.push( new BLOCK('epoch-game', 0, 0, 0.75, 1) ); 
+			this.blocks.push( new BLOCK('epoch-ui', 0.75, 0, 0.25, 1) ); 
 		break;
     }
 	

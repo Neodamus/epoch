@@ -1,9 +1,9 @@
 // block
 
 function BLOCK(name, xOffset, yOffset, widthPercent, heightPercent) {
+	
 	this.name = name;
 	this.element = null;			// element is the bounding box of a block, set in init
-	this.child = null;				// first child within an element
 	this.xOffset = xOffset;
 	this.yOffset = yOffset;
 	this.widthPercent = widthPercent;
@@ -20,94 +20,31 @@ function BLOCK(name, xOffset, yOffset, widthPercent, heightPercent) {
 BLOCK.prototype.init = function() {
 	
 	switch (this.name) {
+		
 		case 'login': 
+		
 			this.element = $('#login'); 
-			this.set('login');
-		break;
-
-        case 'lobby-games': 
-			this.element = $('#lobby-games');
-			this.set('gamesList');
-        break;
-
-        case 'lobby-users': 
-			this.element = $('#lobby-users');
-			this.child = $('#lobby-users-child');
-			this.set('lobby-users');
-        break;
-
-        case 'lobby-chat': 
-			this.element = $('#lobby-chat');
-        break;
-
-        case 'lobby-chat-input': 
-			this.element = $('#lobby-chat-input');
-        break;
-	}
-	
-}
-
-
-// resize the layout
-BLOCK.prototype.resize = function(width, height) {
 		
-	this.width = width * this.widthPercent;
-	this.height = height * this.heightPercent;
-	
-	if (this.element.css('visibility') == 'visible') {
-		this.element.width(this.width);
-		this.element.height(this.height);
-	}
-	
-	if (this.resizeFunction) { this.resizeFunction(); }
-	
-	this.move(width, height);		
-}
-
-
-BLOCK.prototype.move = function(width, height) {	
-	var left = this.xOffset * width;
-	var top = this.yOffset * height;
-	
-	this.element.css('top', top);
-	this.element.css('left', left);	
-}
-
-
-// hide the block
-BLOCK.prototype.hide = function() {	
-	this.element.css('visibility', 'hidden');
-	this.element.width(0);
-	this.element.height(0);
-}
-
-
-// show the block
-BLOCK.prototype.show = function() {
-	this.element.css('visibility', 'visible');	 
-	this.element.width(this.width);
-	this.element.height(this.height);		
-}
-
-
-// BLOCK FUNCTIONS //
-BLOCK.prototype.set = function(blockType) {
-	
-	switch (blockType) {
+			$('#loginName').keypress( function (e) {
+ 				var key = e.which;
+				if (key == 13)  { 	// enter
+					var username = $('#loginName').val();
+					localStorage.EOE_username = username;		// store username in local storage
+					SEND('login', username);
+				}	
+			});
 			
-		case 'login':
-		
 			// login button click
 			$('#loginButton').on('click', function() { 
 				var username = $('#loginName').val();
 				localStorage.EOE_username = username;		// store username in local storage
-				SEND('login', username) 
+				SEND('login', username);
 			});
 			
-			// run by socket if username is already stored in localstorage
+			// run when socket opens
 			this.login = function() {
 				EOE.username = localStorage.EOE_username;
-				SEND('login', EOE.username);
+				if (EOE.username) { $('#loginName').val(EOE.username); }
 			}
 			
 			// run when login to server is successful 
@@ -116,9 +53,11 @@ BLOCK.prototype.set = function(blockType) {
 				EOE.display.changeLayout('lobby');
 			}
 			
-		break;	
-			
-		case 'gamesList':
+		break;
+
+        case 'lobby-games': 
+		
+			this.element = $('#lobby-games');
 		
 			this.selectedGame = { };			
 			var selectedGame = this.selectedGame;
@@ -182,10 +121,13 @@ BLOCK.prototype.set = function(blockType) {
 					}
 				}	
 			}
+			
+        break;
+
+        case 'lobby-users': 
 		
-		break;
-		
-		case 'lobby-users':
+			this.element = $('#lobby-users');
+			this.child = $('#lobby-users-child');		
 		
 			this.resizeFunction = function() {
 				var fontSize = this.height / 30;
@@ -226,10 +168,146 @@ BLOCK.prototype.set = function(blockType) {
 			}
 			
 		break;
-	}	
+
+        case 'lobby-chat': 
+		
+			this.element = $('#lobby-chat');
+			this.box = $('#lobby-chat-box')
+			
+			this.receiveChat = function(data) {				
+			
+				var name = data.name;	// name of person who sent chat
+				var message = data.message;		// message sent
+				
+				// html for a chat message
+				$('#lobby-chat-box').append( 
+					$('<div/>')
+					.attr('class', 'lobby-chat-box-row')
+					.append( 
+						$('<div/>')
+						.attr('class', 'lobby-chat-box-row-name left')
+						.append(
+							$('<p/>').append(name)
+						)
+					)
+					.append(
+						$('<div/>')
+						.attr('class', 'lobby-chat-box-row-message left')
+						.append(
+							$('<p/>').append(message)
+						)
+					)								
+				);
+				
+			    if (this.element.length > 0){
+					var height = this.box[0].scrollHeight;
+        			this.box.scrollTop(height);
+    			}
+				
+			}
+			
+        break;
+
+        case 'lobby-chat-input': 
+		
+			this.element = $('#lobby-chat-input');
+			this.text = $('#lobby-chat-input-text');
+			this.button = $('#lobby-chat-input-button');
+			
+			var sendchat = function() {
+				SEND('chat', $('#lobby-chat-input-text').val());
+				$('#lobby-chat-input-text').val('')
+			}
+			
+			this.button.on('click', function() {
+				sendchat();
+			});
+			
+			this.text.keypress( function (e) {
+ 				var key = e.which;
+				if (key == 13)  { sendchat(); }	//enter
+			});
+			
+        break;
+		
+		case 'epoch-game':
+		
+			this.element = $('#epoch-game');
+			this.game; // equal to EOE.game but is undefined at initialization of block
+			
+			var resize = function() { 
+				if (this.game) { 
+					var width = this.element.width();
+					var height = this.element.height();
+					this.game.resize(width, height); 
+				}
+			}
+			this.resizeFunction = resize.bind(this);
+					
+		break;
+		
+		case 'epoch-ui':
+		
+			this.element = $('#epoch-ui');
+			this.ui; // equal to EOE.game.ui but is undefined at initialization of block
+			
+			var resize = function() {
+				
+			if (EOE.game) { this.ui = EOE.game.ui; }
+				var width = this.element.width();
+				var height = this.element.height();
+				if (this.ui) { this.ui.resize(width, height); }
+			}
+			this.resizeFunction = resize.bind(this);
+		
+		break;
+	}
+	
 }
 
 
+// resize the layout
+BLOCK.prototype.resize = function(width, height) {
+		
+	this.width = width * this.widthPercent;
+	this.height = height * this.heightPercent;
+	
+	if (this.element.css('visibility') == 'visible') {
+		this.element.width(this.width);
+		this.element.height(this.height);
+	}
+	
+	if (this.resizeFunction) { this.resizeFunction(); }	// can give a resize function to any block
+	
+	this.move(width, height);		
+}
+
+
+BLOCK.prototype.move = function(width, height) {	
+	var left = this.xOffset * width;
+	var top = this.yOffset * height;
+	
+	this.element.css('top', top);
+	this.element.css('left', left);	
+}
+
+
+// hide the block
+BLOCK.prototype.hide = function() {	
+	this.element.css('visibility', 'hidden');
+	this.element.width(0);
+	this.element.height(0);
+}
+
+
+// show the block
+BLOCK.prototype.show = function() {
+	this.element.css('visibility', 'visible');	 
+	this.element.width(this.width);
+	this.element.height(this.height);		
+}
+
+// returns a BLOCK object given by blockName to allow for easy block manipulation anywhere in the code
 function getBlock(blockName) {
 	
 	var targetBlock = null;

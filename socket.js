@@ -23,6 +23,7 @@ function RECEIVE(data) {
 	switch(id) {
 		case 'loginSuccess': getBlock('login').loginSuccess(data); break;
 		case 'usersList': getBlock('lobby-users').receiveUsersList(data); break;
+		case 'chat': getBlock('lobby-chat').receiveChat(data); break;
 	}
 }
 

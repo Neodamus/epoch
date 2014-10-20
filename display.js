@@ -25,7 +25,7 @@ DISPLAY.prototype.init = function() {
 	var height = this.height;	
 	
 	// gather all layouts
-	var layoutNames = [ 'login', 'lobby' ];
+	var layoutNames = [ 'login', 'lobby', 'epoch' ];
 	layoutNames.forEach( function(name) {
 		var layout = new LAYOUT(name, width, height);
 		layout.resize(width, height);
@@ -34,12 +34,18 @@ DISPLAY.prototype.init = function() {
 	
 	// choose activelayout
 	if (localStorage.EOE_username) {
-		this.activeLayout = layouts[1];
+		this.activeLayout = layouts[0];
 	} else {
-		this.activeLayout = layouts[0];		
+		this.activeLayout = layouts[0];	
 	}
 	
 	this.activeLayout.show();
+	
+	// open test mode
+	$(document.body).keypress( function(e) {
+		var key = e.which;
+		if (key == 92) { EOE.display.changeLayout('epoch'); EOE.game = new GAME(); getBlock('epoch-game').game = EOE.game; }
+	});
 }
 
 	
@@ -50,7 +56,8 @@ DISPLAY.prototype.changeLayout = function(name) {
 	this.layouts.forEach( function(layout) {
 		if (layout.name == name) { activeLayout = layout; }
 	});
-	activeLayout.show();
+	this.activeLayout = activeLayout;
+	this.activeLayout.show();
 };
 	 			
 	
