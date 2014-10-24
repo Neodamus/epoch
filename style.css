@@ -47,6 +47,9 @@ caption{ background-color: black; color: wheat; border: 1px solid gray; }
 .left { float: left; }
 .right { float: right; }
 
+.cOH { display: block; position: relative; margin: 0 auto 0 auto; } /*centerOnHorizontal*/
+.cOV { display: table-cell; width: inherit; height: inherit; vertical-align: middle; } /*centerOnVertical*/
+
 .layout { visibility: hidden; position: absolute; top: -1000px; }
 .block { position: absolute; }
 
