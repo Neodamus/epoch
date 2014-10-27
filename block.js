@@ -261,6 +261,18 @@ BLOCK.prototype.init = function() {
 			this.resizeFunction = resize.bind(this);
 		
 		break;
+		
+		case 'epoch-editor':
+		
+			this.element = $('#epoch-editor');			
+	
+			$( ".minbutton" ).on('click', function() {
+				var b = $(this).html() == '+' ? '-' : '+';
+				$(this).html(b);
+				$('#epoch-editor-window').slideToggle();
+			});
+		
+		break;
 	}
 	
 }

@@ -11,6 +11,13 @@ UI.prototype.resize = function(width, height) {
 }
 
 
+// set ui to show unit
+UI.prototype.setUnit = function(unit) {
+	
+	console.log(unit);
+}
+
+
 
 function tooltip() {
 

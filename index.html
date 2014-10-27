@@ -18,8 +18,15 @@
 	</div>
 	
     <div id="epoch" class="layout">
-    	<div id="epoch-game" class="block"><canvas id="epoch-game-canvas"></canvas></div>
-        <div id="epoch-ui" class="block"></div>  
+    	<div id="epoch-game" class="block">
+        	<canvas id="epoch-game-layer0"></canvas>
+        	<canvas id="epoch-game-layer1"></canvas> 
+        </div>
+        <div id="epoch-ui" class="block"></div>
+        <div id="epoch-editor" class="block">
+        	<div class="minbutton">-</div>
+            <div id="epoch-editor-window"></div>
+        </div>  
     </div>
 
     <div id="lobby" class="layout">
@@ -61,9 +68,11 @@
 <script src="layout.js"></script>
 <script src="block.js"></script>
 <script src="socket.js"></script>
-<script src="game.js"></script>
-<script src="board.js"></script>
-<script src="ui.js"></script>
+<script src="game/game.js"></script>
+<script src="game/board.js"></script>
+<script src="game/tile.js"></script>
+<script src="game/unit.js"></script>
+<script src="game/ui.js"></script>
 <script src="epoch.js"></script>
 
 
