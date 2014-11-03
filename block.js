@@ -12,6 +12,8 @@ function BLOCK(name, xOffset, yOffset, widthPercent, heightPercent) {
 	this.width;
 	this.height;
 	
+	this.hidden = false;
+	
 	this.init();	
 }
 
@@ -263,14 +265,73 @@ BLOCK.prototype.init = function() {
 		break;
 		
 		case 'epoch-editor':
-		
-			this.element = $('#epoch-editor');			
-	
+			
+			this.element = $('#epoch-editor');	
+			
+			this.selectedUnit = 'vanguard';		
+			
+			// minimizes editor window
 			$( ".minbutton" ).on('click', function() {
 				var b = $(this).html() == '+' ? '-' : '+';
 				$(this).html(b);
 				$('#epoch-editor-window').slideToggle();
 			});
+			
+			// opens/closes unit editor
+			var unit_editor = function() {
+				var block = getBlock('epoch-unit-editor');
+				block.hidden ? block.show() : block.hide();
+			}
+			$('#unit-editor-button').click( unit_editor );
+			
+			// sets all images for units
+			this.setUnitImages = function() {
+				
+				var height = this.element.height() * 0.2;
+				
+				$.each(EOE.game.unitdata, function(index, value) {
+					
+					if (index != 'set') { 
+						$('#epoch-editor-unitlist').prepend(
+							$(EOE.images.getResult(value.type))
+								.css( {
+									"width": "4%",
+									"height": "20%",
+									"padding": "0 0.5%"						
+								})
+								.attr('class', 'epoch-editor-image')
+								.attr('id', 'epoch-editor-' + value.type)
+								.click( function(event) {
+									getBlock('epoch-editor').selectedUnit = value.type;
+								})
+						);					
+					}						
+				});				
+			}
+			
+			var resize = function() {
+					
+			}
+			this.resizeFunction = resize.bind(this);
+		
+		break;
+		
+		case 'epoch-unit-editor':
+		
+			this.element = $('#epoch-unit-editor');
+			
+			var addUnit = function() { 
+				
+				var data = { 
+					type: $('#unit-editor-add-type').val(),
+					name: $('#unit-editor-add-name').val(),
+					attributes: $('#unit-editor-add-attributes').val(),
+					abilities: $('#unit-editor-add-abilities').val()
+				}
+				
+				SEND('addUNITDATA', data); 
+			}
+			$('#unit-editor-add-button').click( addUnit );
 		
 		break;
 	}
@@ -309,6 +370,7 @@ BLOCK.prototype.hide = function() {
 	this.element.css('visibility', 'hidden');
 	this.element.width(0);
 	this.element.height(0);
+	this.hidden = true;
 }
 
 
@@ -316,7 +378,8 @@ BLOCK.prototype.hide = function() {
 BLOCK.prototype.show = function() {
 	this.element.css('visibility', 'visible');	 
 	this.element.width(this.width);
-	this.element.height(this.height);		
+	this.element.height(this.height);	
+	this.hidden = false;	
 }
 
 // returns a BLOCK object given by blockName to allow for easy block manipulation anywhere in the code

@@ -33,6 +33,7 @@ LAYOUT.prototype.init = function() {
 			this.blocks.push( new BLOCK('epoch-game', 0, 0, 0.75, 1) ); 
 			this.blocks.push( new BLOCK('epoch-ui', 0.75, 0, 0.25, 1) ); 
 			this.blocks.push( new BLOCK('epoch-editor', 0, 0, 0.75, 0.2) );
+			this.blocks.push( new BLOCK('epoch-unit-editor', 0.05, 0.05, 0.9, 0.9) );
 		break;
     }
 	

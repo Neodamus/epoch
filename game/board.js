@@ -37,6 +37,9 @@ function BOARD() {
 
 BOARD.prototype.init = function() {
 	
+	// disable right click
+	$('body').on('contextmenu', '#epoch-game-layer1', function(e){ return false; });
+	
 	// size stage and canvas
 	var width = this.block.element.width() * 0.98;
 	var height = this.block.element.height() * 0.98;
@@ -278,7 +281,7 @@ BOARD.prototype.click = function(x, y) {
 BOARD.prototype.rightclick = function(x, y) {
 	
 	var tileId = this.getTileIdByCoord(x, y);
-	EOE.game.addUnit(tileId, 'vanguard');
+	EOE.game.addUnit(tileId, getBlock('epoch-editor').selectedUnit);
 	
 }
 

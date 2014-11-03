@@ -1,32 +1,41 @@
-function UNIT(id, tileId, type, attributes) {
+function UNIT(id, tileId, type) {
 	
 	this.id = id;
 	this.tileId = tileId;
 	this.type = type;
-	this.attributes = EOE.game.unitdata[type];
 	
+	this.set();	
 }
 
+
+// sets all the necessary data for UNIT from UNITDATA
+UNIT.prototype.set = function() {
+	
+	var unitdata = EOE.game.unitdata[this.type];
+	
+	this.name = unitdata.name;
+	this.attributes = JSON.parse(unitdata.attributes);
+	this.abilities = JSON.parse(unitdata.abilities);		
+}
+
+// Unitdata has the following structure after being set
+// UNITDATA { vanguard: {unit}, nightmare: {unit} }
 function UNITDATA() {
 	
-	var unitdata = {
-		vanguard: { 
-				life: 18,
-				damage: 7,
-				defense: 4,
-				speed: 5,
-				sight: 5,
-				reveal: 2,
-				range: 2,
-				attacks: 1,
-				blocks: 3,
-				attackAbilities: [],
-				blockAbilities: [],
-				castAbilities: ["Sixth Sense", "Heat Shield", "Meteor"],
-				auras: [],
-				element: "Fire"			 	
-		}
+	// when UNITDATA is created, request the data from the server
+	// when data is received, it is sent to set function
+	SEND('getUNITDATA');
+}
+
+
+// when UNITDATA is received from server, socket uses set to initialize the data
+// @param unitdata -- [ { id, type, name, attributes, abilities } ]
+UNITDATA.prototype.set = function(unitdata) {
+
+	var setUnit = function(unit, index) {
+		this[unit.type] = unit;	
 	}
+	unitdata.forEach( setUnit.bind(this) );
 	
-	return unitdata;
+	getBlock('epoch-editor').setUnitImages();
 }

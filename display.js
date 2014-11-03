@@ -44,7 +44,7 @@ DISPLAY.prototype.init = function() {
 	// open test mode
 	$(document.body).keypress( function(e) {
 		var key = e.which;
-		if (key == 92) { EOE.display.changeLayout('epoch'); EOE.game = new GAME(); getBlock('epoch-game').game = EOE.game; }
+		if (key == 92) { EOE.display.changeLayout('epoch'); getBlock('epoch-unit-editor').hide(); EOE.game = new GAME(); getBlock('epoch-game').game = EOE.game; }
 	});
 }
 

@@ -25,7 +25,34 @@
         <div id="epoch-ui" class="block"></div>
         <div id="epoch-editor" class="block">
         	<div class="minbutton">-</div>
-            <div id="epoch-editor-window"></div>
+            <div id="epoch-editor-window">
+            	<input type="button" id="unit-editor-button" value="Unit Editor"/>
+                <div style="width: 100%; padding: 1%;" id="epoch-editor-unitlist"/>
+            </div>
+        </div>
+        <div id="epoch-unit-editor" class="block">
+        	<div id="epoch-unit-editor-add">
+            	<table>
+                	<thead>
+                		<tr>
+                        	<th>Type</th>
+                            <th>Name</th>
+                            <th>Attributes</th>
+                            <th>Abilities</th>
+                        </tr>
+                	</thead>
+                    <tbody>
+                    	<tr>
+                        	<th><input type="text" id="unit-editor-add-type"/></th>
+                        	<th><input type="text" id="unit-editor-add-name"/></th>
+                        	<th><input type="text" id="unit-editor-add-attributes"/></th>
+                        	<th><input type="text" id="unit-editor-add-abilities"/></th>
+                        </tr>
+                    </tbody>
+                </table> 
+                <input type='button' id='unit-editor-add-button' value='Add Unit'/>                              
+            </div>
+            <div id="epoch-unit-editor-change"></div>
         </div>  
     </div>
 
