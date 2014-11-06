@@ -1,13 +1,15 @@
-function SOCKET() {	
+function SOCKET() {
+
 	this.ws = new WebSocket('ws://eoe-neodamus.rhcloud.com:8000');	
-	this.ws.onopen = function() { getBlock('login').login(); }	
+	this.ws.onopen = function() { getBlock('login').login(); }
 	this.ws.onmessage = function(message) {	RECEIVE(message.data); }
-	this.ws.onclose = function() { /*do nothing*/ }
+	this.ws.onclose = function() { /*do nothing*/ console.log('closed socket'); }
 }
 
 
 // send websocket message
-function SEND(id, data) {	
+function SEND(id, data) {
+
 	EOE.socket.ws.send( JSON.stringify( { id: id, data: data } ));
 }
 

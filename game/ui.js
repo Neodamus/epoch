@@ -1,23 +1,185 @@
 function UI() {
-	
-	
-	
+    $('#epoch-ui').css(
+
+        {
+            backgroundImage: 'url(' + EOE.images.getResult('ui').src + ')',
+            backgroundSize: '100%'
+        }
+    );
+    /*var addimg = $('#ui-image')
+    addimg.attr('src', ;
+    addimg.attr('position', 'absolute');
+    addimg.attr('height', '100%');
+    addimg.attr('width', '100%');*/
+
 }
 
 
 // width and height are incoming values to size to
 UI.prototype.resize = function(width, height) {
-		
+    var name = $('#unit-name');
+    name.css('font-size', name.height() - 2);
 }
 
 
 // set ui to show unit
 UI.prototype.setUnit = function(unit) {
-	
+
+    var ui = $('#epoch-ui');
+
+    ui.empty();
+    ui.append('<div id="unit-name" style="padding-top: 2px; margin-left: 30%; top:0; width: 60%; height: 1.7%; color: white;text-align: center; font-size: 1em;"></div>');
+    var name = $('#unit-name');
+    name.css('font-size', name.height() - 2);
+    $('#unit-name').html(unit.name);
+
+
+    ui.append('<div id="unit-image-holder" style="height:8.3%;width:100%;"></div>');
+    $('#unit-image-holder').prepend('<img id="unit-image" style="height: 100%; width: auto; display: block; margin-left: 49%;"/>');
+
+    var image = EOE.images.getResult(unit.type).src;
+    var unitimg =  $('#unit-image');
+    unitimg.attr('src', image);
+    unitimg.attr('height', '82px');
+    unitimg.attr('width', '70px');
+
+
+
+    ui.append('<div id="unit-primary-stats" style="width: 100%; height: 120px;"/>');
+    var stats = $('#unit-primary-stats');
+    stats.append('<div id="stats-healthbar-total" style="margin-left: 20%; width:80%; height: 8px; background-color: gray;">' +
+        '<div id="stats-healthbar-current" style="background-color: darkred;width: 50%; height:100%;"/>' +
+        '</div>');
+    stats.append('<div id="primary-stats" style="position:absolute; width:145px; display: inline-block; right: 0; left: 32%; auto;padding-top: 10px;"/>');
+    var primary = $('#primary-stats');
+    primary.append('<div id="stats-health" style="display:inline-block; width:70px;height:25px; background-color: black;"/>');
+
+    var image = EOE.images.getResult('heart-icon').src;
+    var temp =  $('#stats-health'); temp.append('<img id="health-icon" style="position: relative;float: left; "/>');
+    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: left;margin: 0; text-align: center; height: 25px; font-size: 10px;">120 / 120</p>');
+    var addimg = $('#health-icon');
+    addimg.attr('src', image);
+    addimg.attr('position', 'absolute');
+    addimg.attr('height', '100%');
+    addimg.attr('width', 'auto');
+
+    var tool = function () {
+
+        var text = 'Unit Health. (current / total)';
+        var define = 'The amount of damage the unit can withstand.';
+        tp.layout.basic(text, define);
+    };
+
+    tp.add(temp, {width: 250}, tool);
+
+    primary.append('<div id="stats-movement" style="display:inline-block;width:70px;height:25px; background-color: black; "/>');
+
+    var image = EOE.images.getResult('boots-icon').src;
+    var temp =  $('#stats-movement'); temp.append('<img id="boots-icon" style="position: relative;float: left; "/>');
+    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: left;margin: 0; text-align: center; height: 25px; font-size: 12px;">12 / 12</p>');
+    var addimg = $('#boots-icon');
+    addimg.attr('src', image);
+    addimg.attr('position', 'absolute');
+    addimg.attr('height', '100%');
+    addimg.attr('width', 'auto');
+
+    var tool = function () {
+
+        var text = 'Unit Movement. (current / total)';
+        var define = 'The distance a unit can travel in hexagons.';
+        tp.layout.basic(text, define);
+    };
+    tp.add(temp, {width: 280}, tool);
+
+    primary.append('<div id="stats-blocks" style="display:inline-block;width:70px;height:25px; background-color: black;"/>');
+
+    var image = EOE.images.getResult('shield-icon').src;
+    var temp =  $('#stats-blocks'); temp.append('<img id="shield-icon" style="position: relative;float: left; "/>');
+    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: left;margin: 0; text-align: center; height: 25px; font-size: 15px;">3 / 3</p>');
+    var addimg = $('#shield-icon');
+    addimg.attr('src', image);
+    addimg.attr('position', 'absolute');
+    addimg.attr('height', '100%');
+    addimg.attr('width', 'auto');
+
+    var tool = function () {
+
+        var text = 'Unit Blocks. (current / total)';
+        var define = 'The number of times a unit can defend an oncoming attacks.';
+        tp.layout.basic(text, define);
+    };
+    tp.add(temp, {width: 250}, tool);
+
+    primary.append('<div id="stats-armor" style="display:inline-block;width:70px;height:25px; background-color: black;"/>');
+
+    var image = EOE.images.getResult('defense-icon').src;
+    var temp =  $('#stats-armor'); temp.append('<img id="defense-icon" style="position: relative;float: left; "/>');
+    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: right;margin: 0; text-align: center; height: 25px; font-size: 22px;">4</p>');
+    var addimg = $('#defense-icon');
+    addimg.attr('src', image);
+    addimg.attr('position', 'absolute');
+    addimg.attr('height', '100%');
+    addimg.attr('width', 'auto');
+
+    var tool = function () {
+
+        var text = 'Unit Defense.';
+        var define = 'The amount of damage reduced when a unit blocks an attack.';
+        tp.layout.basic(text, define);
+    };
+    tp.add(temp, {width: 250}, tool);
+
+    primary.append('<div id="stats-attacks" style="display:inline-block;width:70px;height:25px; background-color: black;"/>');
+
+    var image = EOE.images.getResult('sword-icon').src;
+    var temp =  $('#stats-attacks'); temp.append('<img id="sword-icon" style="position: relative;float: left; "/>');
+    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: left;margin: 0; text-align: center; height: 25px; font-size: 15px;">3 / 3</p>');
+    var addimg = $('#sword-icon');
+    addimg.attr('src', image);
+    addimg.attr('position', 'absolute');
+    addimg.attr('height', '100%');
+    addimg.attr('width', 'auto');
+
+    var tool = function () {
+
+        var text = 'Unit Attacks. (current / total)';
+        var define = 'The number of times a unit can attack or use abilities.';
+        tp.layout.basic(text, define);
+    };
+    tp.add(temp, {width: 250}, tool);
+
+    primary.append('<div id="stats-damage" style="display:inline-block;width:70px;height:25px; background-color: black;"/>');
+
+    var image = EOE.images.getResult('damage-icon').src;
+    var temp =  $('#stats-damage'); temp.append('<img id="damage-icon" style="position: relative;float: left; "/>');
+    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: right;margin: 0; text-align: center; height: 25px; font-size: 22px;">8</p>');
+    var addimg = $('#damage-icon');
+    addimg.attr('src', image);
+    addimg.attr('position', 'absolute');
+    addimg.attr('height', '100%');
+    addimg.attr('width', 'auto');
+
+    var tool = function () {
+
+        var text = 'Unit Damage.';
+        var define = 'The amount of damage a unit can deal to a target. (before defense reduction is accounted for)';
+        tp.layout.basic(text, define);
+    };
+    tp.add(temp, {width: 250}, tool);
+
+
+    ui.append('<div id="unit-secondary-stats" style="border: 1px solid gray; width: 100%; height: 100px;"/>');
+    var stats2 = $('#unit-secondary-stats');
+
+
+    ui.append('<div id="unit-ability1" style="float: left;border: 1px solid gray; width: 49%; height: 10%"/>');
+    ui.append('<div id="unit-ability2" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');
+    ui.append('<div id="unit-ability3" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');
+    ui.append('<div id="unit-ability4" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');
+
+
 	console.log(unit);
 }
-
-
 
 function tooltip() {
 
@@ -26,7 +188,6 @@ function tooltip() {
     this.layout = this.createLayouts(); //returns object array
 
 }
-
 
 tooltip.prototype.createLayouts = function() {
 
@@ -52,23 +213,33 @@ tooltip.prototype.createLayouts = function() {
         cdimg.attr('height', '13px');
         cdimg.attr('width', '13px');
     };
+    layouts['basic'] = function(summary, definition) {
+
+        var layStart = "<div id='standard-tooltip'>";
+
+        var setSummary =  summary != "" ? "<p style=''>" + summary + "</p>" : "";
+
+        var setDefinition = definition != "" ? '<p style="">' + definition + '</p>' : "";
+
+        var layEnd = "</div>";
+
+        var total = layStart + setSummary + setDefinition + layEnd;
+
+        $('#tooltip').append(total);
+
+        $('#standard-tooltip').css({
+            paddingLeft: '20px', paddingRight: '20px', paddingBottom: '0px', position: 'relative'
+
+        });
+        $('#cooldownImageHolder').prepend('<img id="cooldownImage"/>');
+    };
 
 
-    //Still thinking about getting stats ect...
-    layouts['ability'] = function(unitAbilityTooltip) { // function() { return abilities['fireball'].getStats; }
+    /*layouts['ability'] = function(unitAbilityTooltip) { // function() { return abilities['fireball'].getStats; }
 
         var layStart = "<div id='standard-tooltip'>";
         var setTitle = title != "" ? "<div class='cOH'>" + "<p style='text-decoration: underline;text-align: center;font: 17px Georgia'>" + title + "</p>" + "</div>" : "";
         var setSummary =  summary != "" ? "<p style=''>" + summary + "</p>" : "";
-
-        //if a stat is undefined : automatically discard it from the tooltip
-        //  by using  var blahblah = ability.stat != undefined ? asdf : "";
-        // asdf would be if it exists,  "" is if it doesnt exist.
-
-        //example: var setCastType = 'passive' or 'target'
-        //example: var targetType = 'enemy unit' or 'ally hero'
-
-
         var setCooldown =  cooldown != "" ? "<div style='color: Gold; height: 15px;'>" + "Cooldown: " + cooldown + "<span id='cooldownImageHolder'></span>" + "</div>" : "";
         var loreNote = lore != "" ? "<div style='color: white; font: 10px Arial; padding-top: 20px;'>" + lore + "</div>" : "";
         var layEnd = "</div>";
@@ -84,18 +255,19 @@ tooltip.prototype.createLayouts = function() {
         cdimg.attr('src', cooldownImage);
         cdimg.attr('height', '13px');
         cdimg.attr('width', '13px');
-    };
+    };*/
 
     return layouts;
 };
-var tp = new tooltip();
+
+var tp = new tooltip(); //temporary global variable for testing purposes
 
 function presetlay() { //temporary for testing
 
     var dummyText = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.';
     var dummyLore = 'A pair of tough-skinned boots that change to meet the demand of the wearer.';
     tp.layout.main('Main layout Title(Treads)', dummyText, '50', 'images/borderyellow.png', dummyLore);
-}
+} //temporary for testing purposes
 
 tooltip.prototype.add = function (target, edit, layout) {
 
@@ -104,23 +276,11 @@ tooltip.prototype.add = function (target, edit, layout) {
 
     var object = {
 
-
         follow: true,
-        /*top: 'auto',
-        bottom: function() { return target.position().top - target.css('marginTop'); },
-        right: 'auto',
-        left: 'autp', //dynamic : function() { return target.position().left; },*/
-
         width: 280,
         height : 'auto',
-        /*padding : '0px',*/
         wordwrap : 'normal',
-
-        boundaries: { //what should tooltip try to fit inside
-            x: 0, y: 0,
-            width: window.innerWidth,
-            height: window.innerHeight},
-
+        boundary: $('#wrapper')[0],
         backgroundcolor: 'rgba(40, 40, 40, 0.95)',
         border: '1px solid rgba(80,80,80,1)'
     };
@@ -132,20 +292,17 @@ tooltip.prototype.add = function (target, edit, layout) {
 
         var th = $(this);
         var tt = $('#tooltip');
-       // tt.runMovement = true; //not sure what this is for
-
-        this.object = object; //unnecessary
 
         tt.removeAttr('style');
         tt.css({
-
+            position: 'fixed',
             backgroundColor: 'rgba(20,20,20,0.95)',
             color: 'white', wordBreak: 'break-all', zIndex: '500'
         });
 
         tt.empty(); //reset the layout to nothing
 
-        layout(); //apply the layout parameter
+        layout(); //apply the layout parameter that is stored for this specific tooltip (layouts also contain stats)
 
         tt.css({ //apply the css parameter+defaults
 
@@ -167,53 +324,41 @@ tooltip.prototype.add = function (target, edit, layout) {
 
         });
 
-        if (object.follow == true) { //this is for tooltips following mouse
+        if (object.follow == true) { //positioning of tooltips based on mouse
 
+            var boundaries = object.boundary.getBoundingClientRect();
             th.mousemove(function(event) {
+                var py = 'top';
+                var px = 'middle';
 
-                //if tooltip doesn't fit in bounds, we will switch display modes below
-
-                //bottom right1
-                /* tt.css({top: th.position().top + event.offsetY + 5,
-                 left: th.position().left + event.offsetX + 10
-                 });*/
-
-                //top right
-                /*tt.css({bottom: th.position().top - event.offsetY + 25,
-                 left: th.position().left + event.offsetX + 10
-                 });*/
-
-                //top left
-                /* tt.css({bottom: th.position().top - event.offsetY + 25,
-                 left: th.position().left - tt.width() + event.offsetX - 50
-                 });*/
-
-                //bottom left
-                /* tt.css({top: th.position().top + event.offsetY + 5,
-                 left: th.position().left - tt.width() + event.offsetX - 50
-                 });*/
-
-                if (object.test == undefined) {
-                    //top center
-
-                    tt.css({
-                        top: th.offset().top - (tt.height() + 25) + event.offsetY,
-                        left: th.position().left - tt.width() / 2 + event.offsetX
-
-
-                    });
-                } else {
-
-                    //bottom center
-                    tt.css({top: th.offset().top + 10 + event.offsetY,
-                        left: th.position().left - tt.width() / 2 + event.offsetX
-                    });
+                if (th.offset().top - (tt.height()) - 8 < boundaries.top) {
+                    py = 'bottom';
+                    if (th.offset().bottom  + 8 > boundaries.bottom) {
+                    py = 'middle';
+                    }
                 }
+                if (th.offset().left + (tt.width() / 2)  > boundaries.right) {
+
+                    px = 'left';
+
+                }
+                if (th.offset().left - (tt.width() / 2)  < boundaries.left) {
+                    px = 'right';
+                }
+
+                if (py == 'top') { tt.css({ top: th.offset().top - (tt.height() + 8) }); }
+                if (py == 'bottom') { tt.css({ top: th.offset().top + th.height() + 8 }); }
+
+                if (px == 'middle') {  tt.css({ left: th.offset().left - (tt.width() / 2) }); }
+                if (px == 'left') {  tt.css({ left: th.offset().left - (tt.width())  }); }
+                if (px == 'right') {  tt.css({ left: th.offset().left  }); }
+
             });
         }
-        //how long it takes for tooltip to become visible
-        tt.fadeIn(700);
 
+        //how long it takes for tooltip to become visible
+
+        tt.fadeIn(400); //fadeout is loacated in 'mouseleave' event
     };
 
     var addthis = target; //unnecessary
@@ -223,6 +368,7 @@ tooltip.prototype.add = function (target, edit, layout) {
     addthis.mouseleave(
 
         function() {
+
             var tt = $('#tooltip');
             target.unbind('mousemove'); //unbinding mouse move of event (i'm not sure if keeping it on is a bad thing)
             tt.fadeOut(0); //how long it takes to fade away

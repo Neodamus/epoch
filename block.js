@@ -272,9 +272,20 @@ BLOCK.prototype.init = function() {
 			
 			// minimizes editor window
 			$( ".minbutton" ).on('click', function() {
+
 				var b = $(this).html() == '+' ? '-' : '+';
 				$(this).html(b);
-				$('#epoch-editor-window').slideToggle();
+                if (b == '-') {  $('#epoch-editor').css({width: '75%', height: '20%'}); } //get width&height%
+				$('#epoch-editor-window').slideToggle('slow', function() {
+
+                    var minbut = $('.minbutton');
+                    if (minbut.html() == '+') {
+
+                        $('#epoch-editor').css({width: minbut.width(), height: minbut.height()});
+                    }
+
+                });
+
 			});
 			
 			// opens/closes unit editor
