@@ -19,6 +19,25 @@ function UI() {
 UI.prototype.resize = function(width, height) {
     var name = $('#unit-name');
     name.css('font-size', name.height() - 2);
+
+    var healthstat = $('#stats-health-font');
+    healthstat.css('font-size', healthstat.height() / 2 - 2);
+
+    var movementstat = $('#stats-movement-font');
+    movementstat.css('font-size', movementstat.height() / 2 - 2);
+
+    var blockstat = $('#stats-blocks-font');
+    blockstat.css('font-size', blockstat.height() / 2 - 2);
+
+    var defensestat = $('#stats-defense-font');
+    defensestat.css('font-size', defensestat.height() *0.55);
+
+    var attackstat = $('#stats-attacks-font');
+    attackstat.css('font-size', attackstat.height() / 2 - 2);
+
+    var damagestat = $('#stats-damage-font');
+    damagestat.css('font-size', damagestat.height() *0.55);
+
 }
 
 
@@ -28,7 +47,7 @@ UI.prototype.setUnit = function(unit) {
     var ui = $('#epoch-ui');
 
     ui.empty();
-    ui.append('<div id="unit-name" style="padding-top: 2px; margin-left: 30%; top:0; width: 60%; height: 1.7%; color: white;text-align: center; font-size: 1em;"></div>');
+    ui.append('<div id="unit-name" style="padding-top: 1.5%; margin-left: 30%; top:0; width: 60%; height: 1.7%; color: white;text-align: center; font-size: 1em;"></div>');
     var name = $('#unit-name');
     name.css('font-size', name.height() - 2);
     $('#unit-name').html(unit.name);
@@ -45,22 +64,22 @@ UI.prototype.setUnit = function(unit) {
 
 
 
-    ui.append('<div id="unit-primary-stats" style="width: 100%; height: 120px;"/>');
+    ui.append('<div id="unit-primary-stats" style="margin-left: 20%; width: 80%; height: 25%;"/>');
     var stats = $('#unit-primary-stats');
-    stats.append('<div id="stats-healthbar-total" style="margin-left: 20%; width:80%; height: 8px; background-color: gray;">' +
+    stats.append('<div id="stats-healthbar-total" style="margin-left: 0.8%; margin-top: 1.3%; width:98%; height: 3%; background-color: gray;">' +
         '<div id="stats-healthbar-current" style="background-color: darkred;width: 50%; height:100%;"/>' +
         '</div>');
-    stats.append('<div id="primary-stats" style="position:absolute; width:145px; display: inline-block; right: 0; left: 32%; auto;padding-top: 10px;"/>');
+    stats.append('<div id="primary-stats" style="position:relative; width:98%; height: 68%; display: block; auto;padding-top: 10%; padding-left: 13%;"/>');
     var primary = $('#primary-stats');
-    primary.append('<div id="stats-health" style="display:inline-block; width:70px;height:25px; background-color: black;"/>');
+    primary.append('<div id="stats-health" style="overflow: hidden; display:inline-block; padding-left: 5%; width:34%; height:28%; background-color: black;"/>');
 
     var image = EOE.images.getResult('heart-icon').src;
-    var temp =  $('#stats-health'); temp.append('<img id="health-icon" style="position: relative;float: left; "/>');
-    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: left;margin: 0; text-align: center; height: 25px; font-size: 10px;">120 / 120</p>');
+    var temp =  $('#stats-health'); temp.append('<img id="health-icon" style="padding-right: 8%; padding-top: 5%; position: relative;float: left; "/>');
+    temp.append('<p id="stats-health-font" style="margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">10 /<br> 20</p>');
     var addimg = $('#health-icon');
     addimg.attr('src', image);
     addimg.attr('position', 'absolute');
-    addimg.attr('height', '100%');
+    addimg.attr('height', '70%');
     addimg.attr('width', 'auto');
 
     var tool = function () {
@@ -72,15 +91,15 @@ UI.prototype.setUnit = function(unit) {
 
     tp.add(temp, {width: 250}, tool);
 
-    primary.append('<div id="stats-movement" style="display:inline-block;width:70px;height:25px; background-color: black; "/>');
+    primary.append('<div id="stats-movement" style="display:inline-block; width:40%;height:28%; background-color: black;"/>');
 
     var image = EOE.images.getResult('boots-icon').src;
-    var temp =  $('#stats-movement'); temp.append('<img id="boots-icon" style="position: relative;float: left; "/>');
-    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: left;margin: 0; text-align: center; height: 25px; font-size: 12px;">12 / 12</p>');
+    var temp =  $('#stats-movement'); temp.append('<img id="boots-icon" style="padding-right: 8%; padding-top: 5%; position: relative;float: left; "/>');
+    temp.append('<p id="stats-movement-font" style="margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;%">12 /<br> 12</p>');
     var addimg = $('#boots-icon');
     addimg.attr('src', image);
     addimg.attr('position', 'absolute');
-    addimg.attr('height', '100%');
+    addimg.attr('height', '70%');
     addimg.attr('width', 'auto');
 
     var tool = function () {
@@ -91,15 +110,15 @@ UI.prototype.setUnit = function(unit) {
     };
     tp.add(temp, {width: 280}, tool);
 
-    primary.append('<div id="stats-blocks" style="display:inline-block;width:70px;height:25px; background-color: black;"/>');
+    primary.append('<div id="stats-blocks" style="display:inline-block; padding-left: 5%; width:34%; height:28%; background-color: black;"/>');
 
     var image = EOE.images.getResult('shield-icon').src;
-    var temp =  $('#stats-blocks'); temp.append('<img id="shield-icon" style="position: relative;float: left; "/>');
-    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: left;margin: 0; text-align: center; height: 25px; font-size: 15px;">3 / 3</p>');
+    var temp =  $('#stats-blocks'); temp.append('<img id="shield-icon" style="padding-right: 12%; padding-top: 5%; position: relative;float: left; "/>');
+    temp.append('<p id="stats-blocks-font" style="margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">3 /<br> 3</p>');
     var addimg = $('#shield-icon');
     addimg.attr('src', image);
     addimg.attr('position', 'absolute');
-    addimg.attr('height', '100%');
+    addimg.attr('height', '70%');
     addimg.attr('width', 'auto');
 
     var tool = function () {
@@ -110,15 +129,15 @@ UI.prototype.setUnit = function(unit) {
     };
     tp.add(temp, {width: 250}, tool);
 
-    primary.append('<div id="stats-armor" style="display:inline-block;width:70px;height:25px; background-color: black;"/>');
+    primary.append('<div id="stats-armor" style="display:inline-block; width:40%;height:28%; background-color: black;"/>');
 
     var image = EOE.images.getResult('defense-icon').src;
-    var temp =  $('#stats-armor'); temp.append('<img id="defense-icon" style="position: relative;float: left; "/>');
-    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: right;margin: 0; text-align: center; height: 25px; font-size: 22px;">4</p>');
+    var temp =  $('#stats-armor'); temp.append('<img id="defense-icon" style="padding-right: 8%; padding-top: 1%; position: relative;float: left; "/>');
+    temp.append('<p id="stats-defense-font" style="padding-top: 4%; margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">4</p>');
     var addimg = $('#defense-icon');
     addimg.attr('src', image);
     addimg.attr('position', 'absolute');
-    addimg.attr('height', '100%');
+    addimg.attr('height', '70%');
     addimg.attr('width', 'auto');
 
     var tool = function () {
@@ -129,15 +148,15 @@ UI.prototype.setUnit = function(unit) {
     };
     tp.add(temp, {width: 250}, tool);
 
-    primary.append('<div id="stats-attacks" style="display:inline-block;width:70px;height:25px; background-color: black;"/>');
+    primary.append('<div id="stats-attacks" style="display:inline-block; padding-left: 5%; width:34%; height:28%; background-color: black;"/>');
 
     var image = EOE.images.getResult('sword-icon').src;
-    var temp =  $('#stats-attacks'); temp.append('<img id="sword-icon" style="position: relative;float: left; "/>');
-    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: left;margin: 0; text-align: center; height: 25px; font-size: 15px;">3 / 3</p>');
+    var temp =  $('#stats-attacks'); temp.append('<img id="sword-icon" style="padding-right: 9%; padding-top: 5%; position: relative;float: left; "/>');
+    temp.append('<p id="stats-attacks-font" style="margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">3 /<br> 3</p>');
     var addimg = $('#sword-icon');
     addimg.attr('src', image);
     addimg.attr('position', 'absolute');
-    addimg.attr('height', '100%');
+    addimg.attr('height', '70%');
     addimg.attr('width', 'auto');
 
     var tool = function () {
@@ -148,15 +167,15 @@ UI.prototype.setUnit = function(unit) {
     };
     tp.add(temp, {width: 250}, tool);
 
-    primary.append('<div id="stats-damage" style="display:inline-block;width:70px;height:25px; background-color: black;"/>');
+    primary.append('<div id="stats-damage" style="display:inline-block; width:40%;height:28%; background-color: black;"/>');
 
     var image = EOE.images.getResult('damage-icon').src;
-    var temp =  $('#stats-damage'); temp.append('<img id="damage-icon" style="position: relative;float: left; "/>');
-    temp.append('<p style="color: white; display: block; position:relative; width: 30px; float: right;margin: 0; text-align: center; height: 25px; font-size: 22px;">8</p>');
+    var temp =  $('#stats-damage'); temp.append('<img id="damage-icon" style="padding-right: 12%; padding-top: 0%; position: relative;float: left; "/>');
+    temp.append('<p id="stats-damage-font" style="padding-top: 4%; margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">8</p>');
     var addimg = $('#damage-icon');
     addimg.attr('src', image);
     addimg.attr('position', 'absolute');
-    addimg.attr('height', '100%');
+    addimg.attr('height', '70%');
     addimg.attr('width', 'auto');
 
     var tool = function () {
@@ -168,17 +187,19 @@ UI.prototype.setUnit = function(unit) {
     tp.add(temp, {width: 250}, tool);
 
 
-    ui.append('<div id="unit-secondary-stats" style="border: 1px solid gray; width: 100%; height: 100px;"/>');
+    /*ui.append('<div id="unit-secondary-stats" style="border: 1px solid gray; width: 100%; height: 100px;"/>');
     var stats2 = $('#unit-secondary-stats');
 
 
     ui.append('<div id="unit-ability1" style="float: left;border: 1px solid gray; width: 49%; height: 10%"/>');
     ui.append('<div id="unit-ability2" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');
     ui.append('<div id="unit-ability3" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');
-    ui.append('<div id="unit-ability4" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');
+    ui.append('<div id="unit-ability4" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');*/
 
 
 	console.log(unit);
+
+    EOE.game.ui.resize(); //currently no width/height necessary
 }
 
 function tooltip() {
