@@ -238,8 +238,8 @@ BOARD.prototype.addUnit = function(tileId, type) {
 // moves a unit to destination
 BOARD.prototype.moveUnitRequest = function(unit, destinationTileId) {
 	
-	// send move coordinates to server
-	SEND('moveUnit', { unitId: unit.id, tileId: destinationTileId });
+	// send move coordinates to game queue
+	EOE.game.moveUnitRequest(unit, destinationTileId);
 }
 
 BOARD.prototype.moveUnitResponse = function(unitId, destinationTileId) {

@@ -311,8 +311,22 @@ BLOCK.prototype.init = function() {
 					var mode = id.replace('epoch-editor-content-toolbar-button-', '');
 					EOE.game.board.mousemode = mode;
 				}
-			}
+			}			
 			$('.epoch-editor-content-toolbar-button').click( editor_menu_button_click );
+			
+			
+			// team buttons
+			var editor_menu_team_button_click = function() {			
+				$('.epoch-editor-content-toolbar-team-button').attr('class', 'epoch-editor-content-toolbar-team-button');
+				$(this).attr( 'class', $(this).attr('class') + ' active' );
+				if (EOE.game) { 					
+					var id = $(this).attr( 'id' );
+					var team = id.replace('epoch-editor-content-toolbar-button-team', '');
+					EOE.game.activeArmy = team;		// should be 1 or 2
+				}
+			}
+			$('.epoch-editor-content-toolbar-team-button').click( editor_menu_team_button_click );
+			
 			
 			// sets all images for units
 			this.setUnitImages = function() {
@@ -344,6 +358,15 @@ BLOCK.prototype.init = function() {
 				});				
 			}
 			
+			
+			// send action queue
+			var editor_send_queue_click = function() {			
+				EOE.game.sendActionQueue();
+			}
+			$('#epoch-editor-content-toolbar-button-send').click( editor_send_queue_click );
+						
+			
+			// resize
 			var resize = function() {
 				// @TODO: need to resize widths and heights of menus here	
 			}
