@@ -14,31 +14,56 @@ function GAME(mode) {
 	// update ticker
 	var update = function() { this.update(); }
 	createjs.Ticker.setFPS(20);
-	createjs.Ticker.addEventListener("tick", update.bind(this));	
+	createjs.Ticker.addEventListener("tick", update.bind(this));
+	
+	this.selectedUnit;		// (UNIT)	
+	
+	getBlock('epoch-game').game = this;
+	
+	console.log('game created');
 }
 
 
-GAME.prototype.tileSelect = function(tile) {
+GAME.prototype.selectTile = function(tile) {
+	
+	var unit = tile.unit;
 
-	if (tile.unit) {
-		this.ui.setUnit(tile.unit);	
+	if (unit) {
+		this.selectedUnit = unit;
+		this.board.setMoveTiles(unit);
+		this.ui.setUnit(unit);	
+	} else {
+		this.selectedUnit = null;			
 	}
 	
 }
 
 
-GAME.prototype.addUnit = function(tileId, type, attributes) {
+GAME.prototype.addUnitRequest = function(tileId, type, attributes) {
 	
 	var units = this.units;
 	var id = units.length;
 	
 	var unit = new UNIT(id, tileId, type, attributes);
-	units.push(unit);
+	SEND('addUnit', unit);
+	
+}
+
+
+GAME.prototype.addUnitResponse = function(unit) {
 	
 	// add unit bitmap to board, receive tile where it was created
-	var tile = this.board.addUnit(tileId, type);
+	var tile = this.board.addUnit(unit.tileId, unit.type);
 	tile.unit = unit;
 	
+	// add to units list
+	var units = this.units;
+	units.push(unit);		
+}
+
+
+GAME.prototype.removeUnit = function(tileId) {
+		
 }
 
 

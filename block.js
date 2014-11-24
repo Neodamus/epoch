@@ -245,6 +245,13 @@ BLOCK.prototype.init = function() {
 				}
 			}
 			this.resizeFunction = resize.bind(this);
+			
+			var show = function() { 
+				var width = this.element.width();
+				var height = this.element.height();
+				this.game.resize(width, height); 
+			}
+			this.showFunction = show.bind(this);
 					
 		break;
 		
@@ -268,7 +275,7 @@ BLOCK.prototype.init = function() {
 			
 			this.element = $('#epoch-editor');	
 			
-			this.selectedUnit = 'vanguard';		
+			this.selectedUnit = '';		
 			
 			// minimizes editor window
 			$( ".minbutton" ).on('click', function() {
@@ -295,6 +302,18 @@ BLOCK.prototype.init = function() {
 			}
 			$('#unit-editor-button').click( unit_editor );
 			
+			// menu buttons
+			var editor_menu_button_click = function() {			
+				$('.epoch-editor-content-toolbar-button').attr('class', 'epoch-editor-content-toolbar-button');
+				$(this).attr( 'class', $(this).attr('class') + ' active' );
+				if (EOE.game) { 
+					var id = $(this).attr( 'id' );
+					var mode = id.replace('epoch-editor-content-toolbar-button-', '');
+					EOE.game.board.mousemode = mode;
+				}
+			}
+			$('.epoch-editor-content-toolbar-button').click( editor_menu_button_click );
+			
 			// sets all images for units
 			this.setUnitImages = function() {
 				
@@ -303,25 +322,30 @@ BLOCK.prototype.init = function() {
 				$.each(EOE.game.unitdata, function(index, value) {
 					
 					if (index != 'set') { 
-						$('#epoch-editor-unitlist').prepend(
-							$(EOE.images.getResult(value.type))
-								.css( {
-									"width": "4%",
-									"height": "20%",
-									"padding": "0 0.5%"						
+						$('#epoch-editor-unitlist').append(
+							$( '<div/>' )
+								.attr('class', 'epoch-editor-unitlist-image-wrapper')
+								.prepend(
+								$(EOE.images.getResult(value.type))
+									.css( {
+										"width": "100%",
+										"height": "29%"					
+									})
+									.attr('class', 'epoch-editor-unitlist-image')
+									.attr('id', 'epoch-editor-' + value.type)
+									.click( function(event) {
+										getBlock('epoch-editor').selectedUnit = value.type;	
+										$('.epoch-editor-unitlist-image-wrapper').attr('class', 'epoch-editor-unitlist-image-wrapper');									
+										$(this).parent().attr('class', $(this).parent().attr('class') + ' active-unit');
 								})
-								.attr('class', 'epoch-editor-image')
-								.attr('id', 'epoch-editor-' + value.type)
-								.click( function(event) {
-									getBlock('epoch-editor').selectedUnit = value.type;
-								})
+							)
 						);					
 					}						
 				});				
 			}
 			
 			var resize = function() {
-					
+				// @TODO: need to resize widths and heights of menus here	
 			}
 			this.resizeFunction = resize.bind(this);
 		
@@ -390,7 +414,9 @@ BLOCK.prototype.show = function() {
 	this.element.css('visibility', 'visible');	 
 	this.element.width(this.width);
 	this.element.height(this.height);	
-	this.hidden = false;	
+	this.hidden = false;
+	
+	if (this.showFunction) { this.showFunction(); }	// can give a show function to any block	
 }
 
 // returns a BLOCK object given by blockName to allow for easy block manipulation anywhere in the code

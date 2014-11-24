@@ -27,7 +27,14 @@
         	<div class="minbutton">-</div>
             <div id="epoch-editor-window">
             	<input type="button" id="unit-editor-button" value="Unit Editor"/>
-                <div style="width: 100%; padding: 1%;" id="epoch-editor-unitlist"/>
+                <div id="epoch-editor-content">
+                	<div id="epoch-editor-content-toolbar">
+                    	<div class="epoch-editor-content-toolbar-button active" id="epoch-editor-content-toolbar-button-create">C</div>
+                        <div class="epoch-editor-content-toolbar-button" id="epoch-editor-content-toolbar-button-game">G</div>
+                        <div><input type="button" id="epoch-editor-content-toolbar-button-send" value="Send"></div>
+                    </div> 
+                	<div style="width: 100%;" id="epoch-editor-unitlist"/>
+                </div>
             </div>
         </div>
         <div id="epoch-unit-editor" class="block">

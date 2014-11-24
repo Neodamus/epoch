@@ -4,6 +4,10 @@ function UNIT(id, tileId, type) {
 	this.tileId = tileId;
 	this.type = type;
 	
+	this.name;
+	this.attributes;
+	this.abilities;
+	
 	this.set();	
 }
 

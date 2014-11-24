@@ -1,7 +1,10 @@
 function SOCKET() {
 
-	this.ws = new WebSocket('ws://eoe-neodamus.rhcloud.com:8000');	
-	this.ws.onopen = function() { getBlock('login').login(); }
+	this.ws = new WebSocket('ws://localhost:8080' /*'ws://eoe-neodamus.rhcloud.com:8080'*/);		
+	this.ws.onopen = function() { 
+		getBlock('login').login(); 
+		if (EOE.images) { EOE.game = new GAME(); } 
+	}
 	this.ws.onmessage = function(message) {	RECEIVE(message.data); }
 	this.ws.onclose = function() { /*do nothing*/ console.log('closed socket'); }
 }
@@ -27,5 +30,7 @@ function RECEIVE(data) {
 		case 'usersList': getBlock('lobby-users').receiveUsersList(data); break;
 		case 'chat': getBlock('lobby-chat').receiveChat(data); break;
 		case 'UNITDATA': EOE.game.unitdata.set(data); break;
+		case 'addUnit': EOE.game.addUnitResponse(data); break;
+		case 'moveUnit': EOE.game.board.moveUnitResponse(data.unitId, data.tileId); break;
 	}
 }

@@ -9,8 +9,10 @@ function BOARD() {
 	
 	// stage
 	this.backgroundStage;		
-	this.frontStage;			
-		
+	this.frontStage;		
+	
+	// mousemode -- used to determine what left and right click actions will be used
+	this.mousemode = 'create';
 	
 	// dimensions of board in pixels
 	this.resolution = { x: 1000, y: 1000 };
@@ -19,16 +21,19 @@ function BOARD() {
 	
 	// dimensions of board in tiles	-- must be odd
 	this.widthTiles = 7;
-	this.heightTiles = 13;
-			 
+	this.heightTiles = 13;			 
 	
 	// tile variables
+	this.tileWidth = 70; // int -- width of a tile in pixels
+	this.tileHeight = 82; // int -- height of a tile in pixels
 	this.tilesContainer; // createjs.Container
 	this.stageTiles = []; // Array of bitmaps -- this.frontStage.children[0].children
 	this.tiles = [];
 	this.hoverTile = null;	// createjs.Bitmap
-	this.selectedTile = null;	// (TILE)
+	this.selectedTile = null;	// TILE
 	this.selectedStageTile = null; // createjs.Bitmap
+	this.moveTiles = []; // [TILE]
+	this.moveTilesContainer = null; // createjs.Container
 	
 	//initialize
 	this.init();
@@ -102,10 +107,12 @@ BOARD.prototype.init = function() {
 			}
 			tile.addEventListener('mouseout', mouseout.bind(this));
 			
-			var click = function(event) {
-				var x = event.currentTarget.x;
-				var y = event.currentTarget.y; 
-				this.click( x, y ); 
+			var click = function(event) {					
+				if ( event.nativeEvent.button == 0 ) {
+					var x = event.currentTarget.x;
+					var y = event.currentTarget.y; 
+					this.click( x, y );				
+				}  
 			}
 			tile.addEventListener('click', click.bind(this));
 			
@@ -185,7 +192,31 @@ BOARD.prototype.init = function() {
 	
 	// quick references
 	this.tilesContainer = this.frontStage.children[0];
-	this.stageTiles = this.tilesContainer.children;		
+	this.stageTiles = this.tilesContainer.children;	
+}
+
+
+// @param tile -- TILE class
+BOARD.prototype.selectTile = function(tile) {
+	
+	// remove border on every click
+	this.frontStage.removeChild(this.selectedStageTile);
+		
+	// add yellow border
+	var selection = new createjs.Bitmap(EOE.images.getResult('borderyellow'));	
+	selection.x = tile.x + this.offsetX;
+	selection.y = tile.y + this.offsetY;
+	this.frontStage.addChild(selection);
+	
+	// set selectedTile for board	
+	this.selectedTile = tile;
+	
+	// keep track of stageTile thats selected
+	this.selectedStageTile = selection;
+	
+	// tell game a tile was selected
+	EOE.game.selectTile(tile);
+	
 }
 
 
@@ -204,7 +235,39 @@ BOARD.prototype.addUnit = function(tileId, type) {
 }
 
 
-BOARD.prototype.moveUnit = function() { }
+// moves a unit to destination
+BOARD.prototype.moveUnitRequest = function(unit, destinationTileId) {
+	
+	// send move coordinates to server
+	SEND('moveUnit', { unitId: unit.id, tileId: destinationTileId });
+}
+
+BOARD.prototype.moveUnitResponse = function(unitId, destinationTileId) {
+	
+	// setup tiles
+	var unit = EOE.game.units[unitId];
+	var sourceTile = this.tiles[unit.tileId];
+	var destinationTile = this.tiles[destinationTileId];
+	
+	if (this.moveTiles.indexOf(destinationTile) != -1) {
+		
+		// change units tile id
+		unit.tileId = destinationTileId;
+		
+		// move image
+		var image = this.tilesContainer.children[sourceTile.unitBitmapIndex];
+		image.x = destinationTile.x;
+		image.y = destinationTile.y;
+		
+		// update tiles
+		destinationTile.unitBitmapIndex = sourceTile.unitBitmapIndex;
+		destinationTile.unit = sourceTile.unit;
+		sourceTile.unitBitmapIndex = null;
+		sourceTile.unit = null;
+		
+		this.selectTile(destinationTile);
+	}
+}
 
 
 BOARD.prototype.removeUnit = function(tileId) { 
@@ -223,6 +286,215 @@ BOARD.prototype.getTileIdByCoord = function(x, y) {
 	}
 	
 	return id;
+}
+
+
+// shows move tiles on the board for the unit
+BOARD.prototype.setMoveTiles = function(unit) {
+	
+	if (this.moveTilesContainer) { this.frontStage.removeChild(this.moveTilesContainer); }
+	
+	// get all movable tiles
+	var speed = unit.attributes.speed - 2;	
+	var moveTiles = this.getTiles(this.selectedTile, 'radius', speed);
+	
+	// remove any tiles with units
+	moveTiles.forEach( function(tile, index, array) {
+		if (tile.unit) { array.splice(index, 1) }
+	});
+	
+	// set moveTiles to board
+	this.moveTiles = moveTiles;
+		
+	var moveTilesContainer = new createjs.Container();
+	
+	for (var i = 0; i < moveTiles.length; i++) {	
+		var tile = 	moveTiles[i];	
+		var moveborder = new createjs.Bitmap(EOE.images.getResult('border-move'));	
+		moveborder.x = tile.x + this.offsetX;
+		moveborder.y = tile.y + this.offsetY;
+		moveTilesContainer.addChild(moveborder);
+	}
+		
+	this.frontStage.addChild(moveTilesContainer);
+	this.moveTilesContainer = moveTilesContainer;
+}
+
+
+// returns an array of TILEs based on parameters
+// @param tile - (TILE) origin tile
+// @param mode - (String) 'radius', 'line', 'cone', 'ring'
+// @param settings - (int || String || Object) 
+BOARD.prototype.getTiles = function(tile, mode, settings) {
+	
+	var tiles = [];
+	
+	switch (mode) {
+		
+		// @param settings - (int > 0)
+		case 'radius':
+		
+			//add origin tile
+			//tiles.push(tile);
+			
+			// add tiles around origin		
+				
+			var tempX, tempY, tempId, tempTile;
+			
+			// top left column
+			for (var length = settings; length > 0; length--) {
+				
+				tempX = tile.x - length * (this.tileWidth * 0.5);
+				tempY = tile.y - length * (this.tileHeight * 0.75);
+				tempId = this.getTileIdByCoord(tempX, tempY);
+				if (tempId) {
+					tempTile = this.tiles[tempId];
+					tiles.push(tempTile);
+				}
+				
+				// trailing tiles
+				for (var trail = length - 1; trail > 0; trail--) {
+				
+					trailX = tempX + trail * this.tileWidth;
+					trailY = tempY;
+					tempId = this.getTileIdByCoord(trailX, trailY);
+					if (tempId) {
+						tempTile = this.tiles[tempId];
+						tiles.push(tempTile);
+					}						
+				
+				}
+			}
+			
+			// top right column
+			for (var length = settings; length > 0; length--) {
+				
+				tempX = tile.x + length * (this.tileWidth * 0.5);
+				tempY = tile.y - length * (this.tileHeight * 0.75);
+				tempId = this.getTileIdByCoord(tempX, tempY);
+				if (tempId) {
+					tempTile = this.tiles[tempId];
+					tiles.push(tempTile);
+				}
+				
+				// trailing tiles
+				for (var trail = length - 1; trail > 0; trail--) {
+				
+					trailX = tempX + trail * this.tileWidth * 0.5;
+					trailY = tempY + trail * this.tileHeight * 0.75;
+					tempId = this.getTileIdByCoord(trailX, trailY);
+					if (tempId) {
+						tempTile = this.tiles[tempId];
+						tiles.push(tempTile);
+					}						
+				
+				}
+			}				
+			
+			// right column
+			for (var length = settings; length > 0; length--) {
+				
+				tempX = tile.x + length * this.tileWidth;
+				tempY = tile.y;
+				tempId = this.getTileIdByCoord(tempX, tempY);
+				if (tempId) {
+					tempTile = this.tiles[tempId];
+					tiles.push(tempTile);
+				}
+				
+				// trailing tiles
+				for (var trail = length - 1; trail > 0; trail--) {
+				
+					trailX = tempX - trail * this.tileWidth * 0.5;
+					trailY = tempY + trail * this.tileHeight * 0.75;
+					tempId = this.getTileIdByCoord(trailX, trailY);
+					if (tempId) {
+						tempTile = this.tiles[tempId];
+						tiles.push(tempTile);
+					}						
+				
+				}
+			}			
+			
+			// bottom right column
+			for (var length = settings; length > 0; length--) {
+				
+				tempX = tile.x + length * this.tileWidth * 0.5;
+				tempY = tile.y + length * this.tileHeight * 0.75;
+				tempId = this.getTileIdByCoord(tempX, tempY);
+				if (tempId) {
+					tempTile = this.tiles[tempId];
+					tiles.push(tempTile);
+				}
+				
+				// trailing tiles
+				for (var trail = length - 1; trail > 0; trail--) {
+				
+					trailX = tempX - trail * this.tileWidth;
+					trailY = tempY;
+					tempId = this.getTileIdByCoord(trailX, trailY);
+					if (tempId) {
+						tempTile = this.tiles[tempId];
+						tiles.push(tempTile);
+					}						
+				
+				}
+			}			
+			
+			// bottom left column
+			for (var length = settings; length > 0; length--) {
+				
+				tempX = tile.x - length * this.tileWidth * 0.5;
+				tempY = tile.y + length * this.tileHeight * 0.75;
+				tempId = this.getTileIdByCoord(tempX, tempY);
+				if (tempId) {
+					tempTile = this.tiles[tempId];
+					tiles.push(tempTile);
+				}
+				
+				// trailing tiles
+				for (var trail = length - 1; trail > 0; trail--) {
+				
+					trailX = tempX - trail * this.tileWidth * 0.5;
+					trailY = tempY - trail * this.tileHeight * 0.75;
+					tempId = this.getTileIdByCoord(trailX, trailY);
+					if (tempId) {
+						tempTile = this.tiles[tempId];
+						tiles.push(tempTile);
+					}						
+				
+				}
+			}			
+			
+			// left column
+			for (var length = settings; length > 0; length--) {
+				
+				tempX = tile.x - length * this.tileWidth;
+				tempY = tile.y;
+				tempId = this.getTileIdByCoord(tempX, tempY);
+				if (tempId) {
+					tempTile = this.tiles[tempId];
+					tiles.push(tempTile);
+				}
+				
+				// trailing tiles
+				for (var trail = length - 1; trail > 0; trail--) {
+				
+					trailX = tempX + trail * this.tileWidth * 0.5;
+					trailY = tempY - trail * this.tileHeight * 0.75;
+					tempId = this.getTileIdByCoord(trailX, trailY);
+					if (tempId) {
+						tempTile = this.tiles[tempId];
+						tiles.push(tempTile);
+					}						
+				
+				}
+			}
+		
+		break;		
+	}
+	
+	return tiles;	
 }
 
 
@@ -256,32 +528,35 @@ BOARD.prototype.mouseout = function(x, y) {
 
 BOARD.prototype.click = function(x, y) {
 	
-	// remove border on every click
-	this.frontStage.removeChild(this.selectedStageTile);
-	
 	// setup variables
 	var tileId = this.getTileIdByCoord(x, y);	
 	var tile = this.tiles[tileId];	
-	this.selectedTile = tile;
 	
-	// add yellow border
-	var selection = new createjs.Bitmap(EOE.images.getResult('borderyellow'));	
-	selection.x = tile.x + this.offsetX;
-	selection.y = tile.y + this.offsetY;
-	this.frontStage.addChild(selection);
-	
-	// keep track of stageTile thats selected
-	this.selectedStageTile = selection;
-	
-	// tell game a tile was selected
-	EOE.game.tileSelect(tile);
+	if (this.mousemode == 'create') {
+		
+		//this.selectTile(tile);
+		var unit = getBlock('epoch-editor').selectedUnit;
+		unit != '' ? EOE.game.addUnitRequest(tileId, unit) : false;		
+		
+	} else if (this.mousemode == 'game') {
+		this.selectTile(tile);
+	}
 }
 
 
 BOARD.prototype.rightclick = function(x, y) {
 	
 	var tileId = this.getTileIdByCoord(x, y);
-	EOE.game.addUnit(tileId, getBlock('epoch-editor').selectedUnit);
+	var tile = this.tiles[tileId];
+	
+	if (this.mousemode == 'create') {
+		EOE.game.addUnit(tileId, getBlock('epoch-editor').selectedUnit);
+	} else if (this.mousemode == 'game') {
+		var unit = EOE.game.selectedUnit;
+		if (unit) {
+			this.moveUnitRequest(unit, tileId);	
+		}
+	}
 	
 }
 

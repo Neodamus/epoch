@@ -31,7 +31,7 @@ IMAGES_LOADER.prototype.loadAssets = function () {
 
 	queue.installPlugin(createjs.Sound);
 	
-	var callBack = function() { EOE.images = this.queue; console.log('images loaded'); }
+	var callBack = function() { EOE.images = this.queue; if (EOE.socket.readyState == 1) { EOE.game = new GAME(); } console.log('images loaded'); }
 	queue.addEventListener("complete", callBack.bind(this));
 	
 	queue.addEventListener("progress", handleProgress);

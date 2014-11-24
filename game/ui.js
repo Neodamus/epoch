@@ -195,9 +195,7 @@ UI.prototype.setUnit = function(unit) {
     ui.append('<div id="unit-ability2" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');
     ui.append('<div id="unit-ability3" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');
     ui.append('<div id="unit-ability4" style="float: left;border: 1px solid gray; width: 49%; height: 10%;"/>');*/
-
-
-	console.log(unit);
+	
 
     EOE.game.ui.resize(); //currently no width/height necessary
 }
