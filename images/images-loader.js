@@ -12,8 +12,6 @@ IMAGES_LOADER.prototype.startLoad = function (fileNames) {
 
 		//loadmanifest takes an array of objects like this
 		var curObj = { id: s, src: 'images/' + fileNames[i] };
-
-		//images[s] = queue.getResult(s);
 		
 		objectsToLoad.push(curObj);
 	}
@@ -31,7 +29,17 @@ IMAGES_LOADER.prototype.loadAssets = function () {
 
 	queue.installPlugin(createjs.Sound);
 	
-	var callBack = function() { EOE.images = this.queue; if (EOE.socket.readyState == 1) { EOE.game = new GAME(); } console.log('images loaded'); }
+	var callBack = function() { 
+		EOE.images = this.queue; 
+		if (EOE.socket.readyState == 1) { 
+			/*
+			console.log('images loaded');
+			EOE.game = new GAME();
+			*/ 
+		} else { 
+			//console.log('images waiting for socket to open');	
+		}
+	}
 	queue.addEventListener("complete", callBack.bind(this));
 	
 	queue.addEventListener("progress", handleProgress);

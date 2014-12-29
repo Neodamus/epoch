@@ -1,12 +1,19 @@
-function UNIT(id, tileId, type) {
+function UNIT(id, tileId, type, army) {
 	
 	this.id = id;
 	this.tileId = tileId;
 	this.type = type;
+	this.army = army;
 	
+	// set by id -- should never change
 	this.name;
 	this.attributes;
 	this.abilities;
+	
+	// all game-time stats are added as properties to the unit in set function
+	
+	// client specific
+	this.defaultAbility = new ABILITY('melee_attack', this);
 	
 	this.set();	
 }
@@ -19,7 +26,9 @@ UNIT.prototype.set = function() {
 	
 	this.name = unitdata.name;
 	this.attributes = JSON.parse(unitdata.attributes);
-	this.abilities = JSON.parse(unitdata.abilities);		
+	this.abilities = JSON.parse(unitdata.abilities);
+		
+	for(var p in this.attributes) this[p]=this.attributes[p];
 }
 
 // Unitdata has the following structure after being set

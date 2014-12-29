@@ -46,7 +46,7 @@ BLOCK.prototype.init = function() {
 			// run when socket opens
 			this.login = function() {
 				EOE.username = localStorage.EOE_username;
-				if (EOE.username) { $('#loginName').val(EOE.username); }
+				if (EOE.username) { $('#loginName').val(EOE.username); SEND('login', EOE.username);}
 			}
 			
 			// run when login to server is successful 
@@ -59,70 +59,83 @@ BLOCK.prototype.init = function() {
 
         case 'lobby-games': 
 		
+			// jquery selections
 			this.element = $('#lobby-games');
+			this.gamesList = $('#lobby-games table tbody');
+			this.quickButton = $('#lobby-games #quick');
+			this.createButton = $('#lobby-games #create');
+			this.joinButton = $('#lobby-games #join');
+			this.observeButton = $('#lobby-games #observe');		
 		
-			this.selectedGame = { };			
-			var selectedGame = this.selectedGame;
-			
-			// add game
-			this.addGame = function(name, players) {
-
-				var row = $('#myTable')[0].insertRow(1);
-			  
-				var cell1 = row.insertCell(0);
-				var cell2 = row.insertCell(1);
-			  
-				cell1.innerHTML = name;
-				cell2.innerHTML = players;
-				
-				row.onclick = clickGame.bind(this, row);							
-			}
-			
-			// click on game, used in addgame
-			var clickGame = function(row)	{				
-								
-				var cell = row.getElementsByTagName("td")[0];
-				var id = cell.innerHTML;
-				this.selectedGame = {row: row, id: id};
-				
-				//if (this.selectedGame.row != undefined) { selectedGame.row.style.backgroundColor = "rgb(120,120,120"; }				
-			};
-			
-			// select game
-			this.selectGame = function(row) {				
-				row.style.backgroundColor = "white";
-			}
+			// keeps track of the game that's currently being selected so that if game list refreshes, active game stays selected
+			this.activeGame = '';
 			
 			// receive gamesList from socket
-			// @param: gamesList = [ { (string) name, (int) players } ]    (Array of game objects)	
+			// @param: gamesList = [ { name, host, users } ]    (Array of game objects)	
 			this.receiveGamesList = function(gamesList) {
 				
-				var table = $('#myTable')[0];
+				// clear current games list
+				this.gamesList.empty();				
 				
-				// delete all current games
-				var tableRows = table.getElementsByTagName('tr');
-			
-				var rowCount = tableRows.length;
-			
-				for (var x=rowCount - 1; x>0; x--) {			
-					table.deleteRow(x);
-				}
-				
-				// add games from gamesList
-				for (var i = 0; i < gamesList.length; i++) {	
-								
+				// add games list				
+				for (var i = 0; i < gamesList.length; i++) {
+					
 					var game = gamesList[i];
+					
 					var name = game.name;
-					var players = game.players;
-        
-					this.addGame(name, players);
-
-        			if (name == this.selectedGame.id) {
-						var row = table.getElementsByTagName('tr');
-						this.selectGame(row);
+					var host = game.host;
+					var users = game.users;
+					
+					// add game row element
+					this.gamesList.append(
+						$('<tr>').append(
+							$('<td>').html(name),
+							$('<td>').html(host),
+							$('<td>').html(users)
+						).click( function(event) {
+							
+							// remove any other active game
+							$('#lobby-games table tbody').children().attr('class', '');
+							
+							// add active class to selected game
+							var element = $(event.currentTarget);
+							element.attr('class', 'active');
+							
+							// set active game name
+							getBlock('lobby-games').activeGame = element.children()[0].innerText;
+						})					
+					);
+					
+					// set active game if there was already one	
+					if (name == this.activeGame) {
+						this.gamesList.children().eq(i).attr('class', 'active');
 					}
-				}	
+				}
 			}
+			
+			// click on quick button
+			var clickQuick = function(event)	{				
+										
+			};
+			this.quickButton.click(clickQuick);
+			
+			// click on create button
+			var clickCreate = function(event)	{
+				SEND('createRoom');									
+			};
+			this.createButton.click(clickCreate);
+			
+			// click on join button
+			var clickJoin = function(event)	{			
+				SEND('joinRoom', this.activeGame);					
+			};
+			this.joinButton.click(clickJoin.bind(this));
+			
+			// click on observe button
+			var clickObserve = function(event)	{				
+									
+			};
+			this.observeButton.click(clickObserve);
 			
         break;
 
@@ -176,7 +189,9 @@ BLOCK.prototype.init = function() {
 			this.element = $('#lobby-chat');
 			this.box = $('#lobby-chat-box')
 			
-			this.receiveChat = function(data) {				
+			this.receiveChat = function(data) {		
+			
+				console.log(data);		
 			
 				var name = data.name;	// name of person who sent chat
 				var message = data.message;		// message sent
@@ -309,7 +324,7 @@ BLOCK.prototype.init = function() {
 				if (EOE.game) { 
 					var id = $(this).attr( 'id' );
 					var mode = id.replace('epoch-editor-content-toolbar-button-', '');
-					EOE.game.board.mousemode = mode;
+					EOE.game.mousemode = mode;
 				}
 			}			
 			$('.epoch-editor-content-toolbar-button').click( editor_menu_button_click );
@@ -359,11 +374,25 @@ BLOCK.prototype.init = function() {
 			}
 			
 			
-			// send action queue
-			var editor_send_queue_click = function() {			
-				EOE.game.sendActionQueue();
+			// end turn
+			var editor_end_turn_click = function() {			
+				EOE.game.endTurn();
 			}
-			$('#epoch-editor-content-toolbar-button-send').click( editor_send_queue_click );
+			$('#epoch-editor-content-toolbar-button-end').click( editor_end_turn_click );
+			
+			
+			// save state
+			var editor_save_state_click = function() {		
+				EOE.game.saveGamestateRequest();
+			}
+			$('#epoch-editor-content-toolbar-button-save').click( editor_save_state_click );
+			
+			
+			// load state
+			var editor_load_state_click = function() {			
+				EOE.game.loadGamestateRequest();
+			}
+			$('#epoch-editor-content-toolbar-button-load').click( editor_load_state_click );
 						
 			
 			// resize

@@ -1,22 +1,50 @@
-function UI() {
-    $('#epoch-ui').css(
+function UI(game) {
+	
+	// UI needs a reference to game to pass it input
+	this.game = game;
+	
+	// add ui click event -- probably dont need this since ui should never really need to know if its clicked, only elements do
+	/*
+	var click = function(event) {
+		var x = event.offsetX;
+		var y = event.offsetY;
+		this.click(x, y);
+	}
+	$('#epoch-ui').click( click.bind(this) );
+	*/
+	
+	// add ready click event
+	var readyClick = function(event) {
+		if (!event.isPropagationStopped()) {
+			
+			// stop event from propagating to parents
+			event.stopPropagation();
+			
+			// change text/send game messages
+			this.game.setReady(!this.game.ready);
+			
+			// set text of element
+			var readyButton = $('#epoch-ui .timer .ready');
+			var readyButtonHtml = this.game.ready ? 'Not Ready' : 'Ready';
+			readyButton.html(readyButtonHtml); 				
+		}
+	}
+	$('#epoch-ui .timer .ready').click( readyClick.bind(this) );
+	
+	// set background of sidebar
+    $('#epoch-ui .sidebar').css(
 
         {
             backgroundImage: 'url(' + EOE.images.getResult('ui').src + ')',
             backgroundSize: '100%'
         }
-    );
-    /*var addimg = $('#ui-image')
-    addimg.attr('src', ;
-    addimg.attr('position', 'absolute');
-    addimg.attr('height', '100%');
-    addimg.attr('width', '100%');*/
-
+    )
 }
 
 
 // width and height are incoming values to size to
-UI.prototype.resize = function(width, height) {
+UI.prototype.resize = function(width, height) { 
+	
     var name = $('#unit-name');
     name.css('font-size', name.height() - 2);
 
@@ -44,7 +72,7 @@ UI.prototype.resize = function(width, height) {
 // set ui to show unit
 UI.prototype.setUnit = function(unit) {
 
-    var ui = $('#epoch-ui');
+    var ui = $('#epoch-ui .sidebar');
 
     ui.empty();
     ui.append('<div id="unit-name" style="padding-top: 1.5%; margin-left: 30%; top:0; width: 60%; height: 1.7%; color: white;text-align: center; font-size: 1em;"></div>');
@@ -75,7 +103,7 @@ UI.prototype.setUnit = function(unit) {
 
     var image = EOE.images.getResult('heart-icon').src;
     var temp =  $('#stats-health'); temp.append('<img id="health-icon" style="padding-right: 8%; padding-top: 5%; position: relative;float: left; "/>');
-    temp.append('<p id="stats-health-font" style="margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">10 /<br> 20</p>');
+    temp.append('<p id="stats-health-font" style="margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">' + unit.life + ' /<br> ' + unit.attributes.life + '</p>');
     var addimg = $('#health-icon');
     addimg.attr('src', image);
     addimg.attr('position', 'absolute');
@@ -133,7 +161,7 @@ UI.prototype.setUnit = function(unit) {
 
     var image = EOE.images.getResult('defense-icon').src;
     var temp =  $('#stats-armor'); temp.append('<img id="defense-icon" style="padding-right: 8%; padding-top: 1%; position: relative;float: left; "/>');
-    temp.append('<p id="stats-defense-font" style="padding-top: 4%; margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">4</p>');
+    temp.append('<p id="stats-defense-font" style="padding-top: 4%; margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">' + unit.defense + '</p>');
     var addimg = $('#defense-icon');
     addimg.attr('src', image);
     addimg.attr('position', 'absolute');
@@ -171,7 +199,7 @@ UI.prototype.setUnit = function(unit) {
 
     var image = EOE.images.getResult('damage-icon').src;
     var temp =  $('#stats-damage'); temp.append('<img id="damage-icon" style="padding-right: 12%; padding-top: 0%; position: relative;float: left; "/>');
-    temp.append('<p id="stats-damage-font" style="padding-top: 4%; margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">8</p>');
+    temp.append('<p id="stats-damage-font" style="padding-top: 4%; margin: 0; color: white; position:relative; float: left; width: auto; text-align: left; height: 90%; font-size: 90%;">' + unit.damage + '</p>');
     var addimg = $('#damage-icon');
     addimg.attr('src', image);
     addimg.attr('position', 'absolute');
@@ -198,6 +226,12 @@ UI.prototype.setUnit = function(unit) {
 	
 
     EOE.game.ui.resize(); //currently no width/height necessary
+}
+
+
+//
+UI.prototype.click = function(x, y) {
+	console.log('ui was clicked');
 }
 
 function tooltip() {

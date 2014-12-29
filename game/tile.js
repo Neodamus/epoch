@@ -1,23 +1,19 @@
-function TILE(x, y, stageIndex) {
-	
-	this.x = x;
-	this.y = y;
-	this.stageIndex;	// will be used when tiles are containers
-	
-	this.unitBitmapIndex;	// if tile has a unit, this is index of unit bitmap in tilesContainer
-	
-	this.unit; 	// contains a unit if there is 1
-	
-}
+// TILE is used to interface between BOARD and GAME
 
-/*
-TILE.prototype.setUnitPosition = function(x, y) {
+function TILE(id) {
 	
-	if (this.unit) {
-		this.unit.x = this.x;
-		this.unit.y = this.y;
-	} else {
-		console.log('You are trying to setUnitPosition for a tile that doesn\'t have a unit');
-	}
+	this.id = id; 			// @TODO: probably needs to be set by server due to client/server mixup with multi users
+	
+	// set by game/server
+	this.x;
+	this.y;
+	this.unit;
+	this.neighbors;			// not currently used but maybe could be used in the future for something
+	this.type;		 		// set by server with a selectTileResponse -- 'select', 'move', 'attack', 'ability'
+	
+	// set by board
+	this.boardX;
+	this.boardY;
+	this.unitBitmapIndex;	// if tile has a unit, this is index of unit bitmap in board.unitBitmaps
+	
 }
-*/

@@ -1,41 +1,39 @@
-// BOARD handles all user input and display output
-function BOARD() {
-		
-	this.block = getBlock('epoch-game');
+// BOARD handles user input and display output for canvas elements
+
+function BOARD(game) {
+	
+	// needs reference to game to send user input
+	this.game = game;
 	
 	// canvases
 	this.backgroundCanvas = $('#epoch-game-layer0')[0];
 	this.frontCanvas = $('#epoch-game-layer1')[0];
 	
-	// stage
+	// stages
 	this.backgroundStage;		
-	this.frontStage;		
-	
-	// mousemode -- used to determine what left and right click actions will be used
-	this.mousemode = 'create';
+	this.frontStage;			
 	
 	// dimensions of board in pixels
 	this.resolution = { x: 1000, y: 1000 };
 	this.width;
-	this.height;
+	this.height;		 
 	
-	// dimensions of board in tiles	-- must be odd
-	this.widthTiles = 7;
-	this.heightTiles = 13;			 
+	// tile dimensions
+	this.tileWidth = 70; 						// width of tile in pixels
+	this.tileHeight = 82; 						// height of tile in pixels
 	
-	// tile variables
-	this.tileWidth = 70; // int -- width of a tile in pixels
-	this.tileHeight = 82; // int -- height of a tile in pixels
-	this.tilesContainer; // createjs.Container
-	this.stageTiles = []; // Array of bitmaps -- this.frontStage.children[0].children
-	this.tiles = [];
-	this.hoverTile = null;	// createjs.Bitmap
-	this.selectedTile = null;	// TILE
-	this.selectedStageTile = null; // createjs.Bitmap
-	this.moveTiles = []; // [TILE]
-	this.moveTilesContainer = null; // createjs.Container
+	// createjs variables
+	this.tileBitmapsContainer;					// createjs.Container -- contains all the createjs.Bitmap elements for interactive tiles
+	this.tileBitmaps; 							// [ createjs.Bitmap ] -- equal to this.tileBitmapsContainer.children;	
 	
-	//initialize
+	this.unitBitmapsContainer;					// createjs.Container -- contains all the createjs.Bitmap elements for units
+	this.unitBitmaps;							// [ createjs.Bitmap ] -- equal to this.unitBitmapsContainer.children;
+	
+	this.activeTileBitmapsContainer = null;		// createjs.Container -- contains all the createjs.Bitmap elements for active tiles
+	
+	this.hoverTile;								// createjs.Bitmap
+	
+	//
 	this.init();
 }
 
@@ -46,8 +44,8 @@ BOARD.prototype.init = function() {
 	$('body').on('contextmenu', '#epoch-game-layer1', function(e){ return false; });
 	
 	// size stage and canvas
-	var width = this.block.element.width() * 0.98;
-	var height = this.block.element.height() * 0.98;
+	var width = getBlock('epoch-game').element.width() * 0.98;
+	var height = getBlock('epoch-game').element.height() * 0.98;
 	
 	// set all canvases to resolution for game -- needs to be set before added to stage
 	this.backgroundCanvas.width = this.frontCanvas.width = this.resolution.x;
@@ -69,456 +67,290 @@ BOARD.prototype.init = function() {
 	this.width = this.backgroundCanvas.width;
 	this.height = this.backgroundCanvas.height;
 	
-	// initialize all board tiles	
-	var tiles = new createjs.Container();
-	for (var row = 0; row < this.heightTiles; row++) {
+	// setup unit bitmaps container and add to front stage
+	this.unitBitmapsContainer = new createjs.Container();
+	this.unitBitmaps = this.unitBitmapsContainer.children;
+	this.frontStage.addChild(this.unitBitmapsContainer);	
+}
+
+
+// sets up initial board properties for tiles, giving easy communication with game
+BOARD.prototype.initTiles = function() {
+	
+	// game variables
+	var tiles = this.game.tiles;
+	var widthTiles = this.game.widthTiles;
+	var heightTiles = this.game.heightTiles;
 		
-		var cols = 0; 
+	// setup container to put tile bitmaps into
+	var boardTiles = new createjs.Container();
+	
+	for (var i = 0; i < tiles.length; i++) {
 		
-		if (row < this.heightTiles / 2) {
-			cols = this.widthTiles + row;
-		} else {
-			cols = this.widthTiles + this.heightTiles - row - 1;
+		// TILE TO BE INITIALIZED
+		var tile = this.game.tiles[i];			
+				
+		// CREATE TILE BITMAP
+		var tileBitmap = new createjs.Bitmap(EOE.images.getResult('newgrass'));
+		var bounds = tileBitmap.getBounds();
+		tileBitmap.filters = [ new createjs.ColorFilter(1,1,1,1, 10, 40, 10, 0) ];
+		tileBitmap.cache(0, 0, bounds.width, bounds.height);				
+			
+		// EVENT LISTENERS
+		var mouseover = function(event) {
+			var x = event.currentTarget.x;
+			var y = event.currentTarget.y; 
+			this.mouseover( x, y ); 
 		}
+		tileBitmap.addEventListener('mouseover', mouseover.bind(this));
+			
+		var mouseout = function(event) {
+			var x = event.currentTarget.x;
+			var y = event.currentTarget.y; 
+			this.mouseout( x, y ); 
+		}
+		tileBitmap.addEventListener('mouseout', mouseout.bind(this));
 		
-		for (var col = 0; col < cols; col++) {
-			
-			var index = this.tiles.length;
-			
-			// tile setup
-			var tile = new createjs.Bitmap(EOE.images.getResult('newgrass'));
-			var bounds = tile.getBounds();
-			tile.filters = [ new createjs.ColorFilter(1,1,1,1, 10, 40, 10, 0) ];
-			tile.cache(0, 0, bounds.width, bounds.height);
-			tile.index = index;
-			
-			// event listeners for tile
-			var mouseover = function(event) {
+		var click = function(event) {					
+			if ( event.nativeEvent.button == 0 ) {
 				var x = event.currentTarget.x;
 				var y = event.currentTarget.y; 
-				this.mouseover( x, y ); 
-			}
-			tile.addEventListener('mouseover', mouseover.bind(this));
-			
-			var mouseout = function(event) {
+				this.click( x, y );				
+			}  
+		}
+		tileBitmap.addEventListener('click', click.bind(this));
+		
+		var rightclick = function(event) {		
+			if ( event.nativeEvent.button == 2 ) {
 				var x = event.currentTarget.x;
 				var y = event.currentTarget.y; 
-				this.mouseout( x, y ); 
-			}
-			tile.addEventListener('mouseout', mouseout.bind(this));
-			
-			var click = function(event) {					
-				if ( event.nativeEvent.button == 0 ) {
-					var x = event.currentTarget.x;
-					var y = event.currentTarget.y; 
-					this.click( x, y );				
-				}  
-			}
-			tile.addEventListener('click', click.bind(this));
-			
-			var rightclick = function(event) {		
-				if ( event.nativeEvent.button == 2 ) {
-					var x = event.currentTarget.x;
-					var y = event.currentTarget.y; 
-					this.rightclick( x, y ); 					
-				} 
-			}
-			tile.addEventListener('mousedown', rightclick.bind(this));
-			
-			
-			// set position of tile
-			var offset = bounds.width * Math.floor(this.widthTiles / 2);
-			if (row < this.heightTiles / 2) {
-				if (row % 2 == 0) {
-					
-					tile.x = col * bounds.width - row * (bounds.width / 2) + offset;
-					tile.y = Math.floor(row * 0.5) * (bounds.height * 3 / 2);
-					
-					
-				} else {
-					
-					tile.x = col * bounds.width - row * (bounds.width / 2) + offset;
-					tile.y = Math.floor(row * 0.5) * (bounds.height * 3 / 2) + bounds.height * 3 / 4;				
-									
-				}
+				this.rightclick( x, y ); 					
+			} 
+		}
+		tileBitmap.addEventListener('mousedown', rightclick.bind(this));					
+		
+		// SET BOARDX, BOARDY FOR TILE BITMAP BASED ON TILE X, Y		
+		var offset = bounds.width * Math.floor(widthTiles / 2);
+		var row = tile.y;
+		var col = tile.x;
+		
+		if (row < heightTiles / 2) {
+			if (row % 2 == 0) {
+				
+				tileBitmap.x = col * bounds.width - row * (bounds.width / 2) + offset;
+				tileBitmap.y = Math.floor(row * 0.5) * (bounds.height * 3 / 2);
+				
+				
 			} else {
 				
-				if (row % 2 == 0) {
-					
-					tile.x = col * bounds.width - (this.heightTiles - row - 1) * (bounds.width / 2) + offset;
-					tile.y = Math.floor(row * 0.5) * (bounds.height * 3 / 2);
-					
-					
-				} else {
-					
-					tile.x = col * bounds.width - (this.heightTiles - row - 1) * (bounds.width / 2) + offset;
-					tile.y = Math.floor(row * 0.5) * (bounds.height * 3 / 2) + bounds.height * 3 / 4;				
-									
-				}
+				tileBitmap.x = col * bounds.width - row * (bounds.width / 2) + offset;
+				tileBitmap.y = Math.floor(row * 0.5) * (bounds.height * 3 / 2) + bounds.height * 3 / 4;				
+								
+			}
+		} else {
+			
+			if (row % 2 == 0) {
 				
+				tileBitmap.x = col * bounds.width - (heightTiles - row - 1) * (bounds.width / 2) + offset;
+				tileBitmap.y = Math.floor(row * 0.5) * (bounds.height * 3 / 2);
+				
+				
+			} else {
+				
+				tileBitmap.x = col * bounds.width - (heightTiles - row - 1) * (bounds.width / 2) + offset;
+				tileBitmap.y = Math.floor(row * 0.5) * (bounds.height * 3 / 2) + bounds.height * 3 / 4;				
+								
 			}
 			
-			// add tile image to stage, create TILE class to interface with it, then add new tile to this.tiles
-			tiles.addChild(tile);
-			var stageIndex = tiles.children.length - 1;
-			this.tiles[index] = new TILE(tile.x, tile.y, stageIndex);
-			
-			// show numbers
-			var showNumbers = false;
-			if (showNumbers) {
-			var text = new createjs.Text(index, "20px Arial", "#fff");
-				text.x = tile.x + (bounds.width - text.getMeasuredWidth()) / 2;
-				text.y = tile.y + (bounds.height - text.getMeasuredHeight()) / 2;
-				tiles.addChild(text);
-			}
 		}
-	}
-	
 			
-	bounds = tiles.getBounds();
-	this.offsetX = tiles.x = (this.backgroundCanvas.width - bounds.width * this.backgroundCanvas.width / this.resolution.x) / 2;
-	this.offsetY = tiles.y = (this.backgroundCanvas.height - bounds.height * this.backgroundCanvas.height / this.resolution.y) / 2;
-	this.backgroundStage.addChild(tiles);
+		// ADD BITMAP TO BOARDTILES CONTAINER
+		boardTiles.addChild(tileBitmap);
+		
+		// ADD BOARDTILE COORDINATES TO GAME TILES
+		tile.boardX = tileBitmap.x;
+		tile.boardY = tileBitmap.y;	
+		
+		// SHOW NUMBERS
+		var showNumbers = false;
+		if (showNumbers) {
+		var text = new createjs.Text(index, "20px Arial", "#fff");
+			text.x = tile.x + (bounds.width - text.getMeasuredWidth()) / 2;
+			text.y = tile.y + (bounds.height - text.getMeasuredHeight()) / 2;
+			tiles.addChild(text);
+		}
+		
+	}	
 	
-	// cache tiles and add to background
-	this.backgroundStage.cache(tiles.x, tiles.y, bounds.width, bounds.height);
+	// OFFSET BOARDTILES CONTAINER AND ADD TO STAGE		
+	bounds = boardTiles.getBounds();
+	this.offsetX = boardTiles.x = (this.backgroundCanvas.width - bounds.width * this.backgroundCanvas.width / this.resolution.x) / 2;
+	this.offsetY = boardTiles.y = (this.backgroundCanvas.height - bounds.height * this.backgroundCanvas.height / this.resolution.y) / 2;
+	this.backgroundStage.addChild(boardTiles);
+	
+	// CACHE TILES TO BACKGROUND -- NEVER TO BE TOUCHED AGAIN
+	this.backgroundStage.cache(boardTiles.x, boardTiles.y, bounds.width, bounds.height);
 	this.backgroundStage.update();
 	
-	// make tiles invisible and add to frontStage
-	this.frontStage.addChild(tiles);
-	tiles.children.forEach( function (tile) {	
+	// MAKE BOARDTILES INVISIBLE AND ADD TO FRONT STAGE TO ALLOW FOR USER INPUT
+	this.frontStage.addChild(boardTiles);
+	boardTiles.children.forEach( function (tile) {	
 		tile.alpha = 0.01;		
 	});
 	
-	// quick references
-	this.tilesContainer = this.frontStage.children[0];
-	this.stageTiles = this.tilesContainer.children;	
+	// SETUP QUICK REFERENCES
+	this.tileBitmapsContainer = this.frontStage.children[0];
+	this.tileBitmaps = this.tileBitmapsContainer.children;	
+	
 }
 
 
-// @param tile -- TILE class
-BOARD.prototype.selectTile = function(tile) {
+// @param tile -- (TILE)
+// @param type -- 'vanguard', 'firebringer', etc.
+BOARD.prototype.addUnitBitmap = function(tile, type) {
 	
-	// remove border on every click
-	this.frontStage.removeChild(this.selectedStageTile);
+	var unitBitmap = new createjs.Bitmap(EOE.images.getResult(type));
+	unitBitmap.x = tile.boardX + this.offsetX;
+	unitBitmap.y = tile.boardY + this.offsetY;
+	
+	this.unitBitmapsContainer.addChild( unitBitmap );
+	
+	// add index of unit bitmap in its container to the tile the unit is in
+	tile.unitBitmapIndex = this.unitBitmaps.length - 1;		
+}
+
+
+//
+BOARD.prototype.removeUnitBitmaps = function() {
+	
+	// remove unit bitmaps if there are any
+	if (this.unitBitmapsContainer) { this.unitBitmapsContainer.removeAllChildren(); }		
+}
+
+
+// @param activeTiles --  ( [ { tileId, tileType } ] ) holds all the tiles that are active and what kind of tile they should be -- move, attack, etc
+BOARD.prototype.setActiveTileBitmaps = function(activeTiles) {
+	
+	var tiles = this.game.tiles;	
+	var activeTileBitmapsContainer = new createjs.Container();
+	
+	for (var i = 0; i < activeTiles.length; i++) {
 		
-	// add yellow border
-	var selection = new createjs.Bitmap(EOE.images.getResult('borderyellow'));	
-	selection.x = tile.x + this.offsetX;
-	selection.y = tile.y + this.offsetY;
-	this.frontStage.addChild(selection);
+		// active tile variables	
+		var tileData = 	activeTiles[i];	
+		var tileId = tileData.tileId;
+		var tileType = tileData.tileType;
+		
+		// bitmap setup
+		var tile = tiles[tileId];
+		var imageName = 'tiletype-' + tileType;
+		var border = new createjs.Bitmap(EOE.images.getResult(imageName));
+		border.x = tile.boardX + this.offsetX;
+		border.y = tile.boardY + this.offsetY;
+		
+		// add bitmap to container
+		activeTileBitmapsContainer.addChild(border);
+	}
 	
-	// set selectedTile for board	
-	this.selectedTile = tile;
-	
-	// keep track of stageTile thats selected
-	this.selectedStageTile = selection;
-	
-	// tell game a tile was selected
-	EOE.game.selectTile(tile);
-	
+	// add to board and add active tile bitmaps to stage	
+	this.activeTileBitmapsContainer = activeTileBitmapsContainer;
+	this.frontStage.addChild(this.activeTileBitmapsContainer);
 }
 
 
-BOARD.prototype.addUnit = function(tileId, type) {	
+//
+BOARD.prototype.removeActiveTileBitmaps = function() {
 	
-	var tile = this.tiles[tileId];
-	var unit = new createjs.Bitmap(EOE.images.getResult(type));
-	unit.x = tile.x;
-	unit.y = tile.y;
-	
-	this.tilesContainer.addChild( unit );
-	
-	tile.unitBitmapIndex = this.stageTiles.length - 1; 
-	
-	return tile;	
+	// remove active tiles if there are any
+	if (this.activeTileBitmapsContainer) { this.frontStage.removeChild(this.activeTileBitmapsContainer); }			
 }
 
 
-// moves a unit to destination
-BOARD.prototype.moveUnitRequest = function(unit, destinationTileId) {
+//
+BOARD.prototype.loadGamestate = function() {
 	
-	// send move coordinates to game queue
-	EOE.game.moveUnitRequest(unit, destinationTileId);
+	// remove all previous bitmaps that are no longer necessary
+	this.removeUnitBitmaps();
+
+	// get reference to tiles
+	var tiles = this.game.tiles;
+	
+	// go through each tile and determine if theres a unit, etc to add there	
+	for (var i = 0; i < tiles.length; i++) {
+		
+		var tile = tiles[i];
+		var unit = tile.unit;
+		
+		if (unit) {	
+			if (unit.alive) {		
+				var type = unit.type;
+				this.addUnitBitmap(tile, type);	
+			}
+		}		
+	}
 }
 
+
+/* THIS MAY BE UNNECESSARY SINCE IT MOVES BITMAPS AROUND -- NEW WAY JUST RELOADS ALL BITMAPS BASED ON LOADED GAMESTATE
 BOARD.prototype.moveUnitResponse = function(unitId, destinationTileId) {
 	
-	// setup tiles
-	var unit = EOE.game.units[unitId];
-	var sourceTile = this.tiles[unit.tileId];
-	var destinationTile = this.tiles[destinationTileId];
-	
-	if (this.moveTiles.indexOf(destinationTile) != -1) {
+	// check to see if unit should be moved by checking active tiles	
+	for (var activeTileIndex = 0; activeTileIndex < this.activeTiles.length; activeTileIndex++) {
 		
-		// change units tile id
-		unit.tileId = destinationTileId;
+		var activeTile = this.activeTiles[activeTileIndex];
+		var activeTileId = activeTile.tileId;
+		var activeTileType = activeTile.tileType;
 		
-		// move image
-		var image = this.tilesContainer.children[sourceTile.unitBitmapIndex];
-		image.x = destinationTile.x;
-		image.y = destinationTile.y;
+		if (activeTileId == destinationTileId && activeTileType == 'move') {
 		
-		// update tiles
-		destinationTile.unitBitmapIndex = sourceTile.unitBitmapIndex;
-		destinationTile.unit = sourceTile.unit;
-		sourceTile.unitBitmapIndex = null;
-		sourceTile.unit = null;
+			// setup tiles
+			var unit = EOE.game.units[unitId];
+			var sourceTile = this.tiles[unit.tileId];
+			var destinationTile = this.tiles[destinationTileId];
 		
-		this.selectTile(destinationTile);
-	}
-}
-
-
-BOARD.prototype.removeUnit = function(tileId) { 
-	
-	var unitBitmapIndex = this.tiles[tileId].unitBitmapIndex;	
-	this.tilesContainer.getChildAt(unitBitmapIndex).visible = false;	
-}
-
-
-BOARD.prototype.getTileIdByCoord = function(x, y) {	
-
-	var id;
-	
-	for (var i = 0; i < this.tiles.length; i++) {
-		if (this.tiles[i].x == x & this.tiles[i].y == y) { id = i; }	
+			// change units tile id
+			unit.tileId = destinationTileId;
+			
+			// move image
+			var image = this.tilesContainer.children[sourceTile.unitBitmapIndex];
+			image.x = destinationTile.x;
+			image.y = destinationTile.y;
+			
+			// update tiles
+			destinationTile.unitBitmapIndex = sourceTile.unitBitmapIndex;
+			destinationTile.unit = sourceTile.unit;
+			sourceTile.unitBitmapIndex = null;
+			sourceTile.unit = null;
+			
+			this.selectTileRequest(destinationTile);	
+			
+		}
+			
 	}
 	
-	return id;
 }
+*/
 
 
-// shows move tiles on the board for the unit
-BOARD.prototype.setMoveTiles = function(unit) {
-	
-	if (this.moveTilesContainer) { this.frontStage.removeChild(this.moveTilesContainer); }
-	
-	// get all movable tiles
-	var speed = unit.attributes.speed - 2;	
-	var moveTiles = this.getTiles(this.selectedTile, 'radius', speed);
-	
-	// remove any tiles with units
-	moveTiles.forEach( function(tile, index, array) {
-		if (tile.unit) { array.splice(index, 1) }
-	});
-	
-	// set moveTiles to board
-	this.moveTiles = moveTiles;
-		
-	var moveTilesContainer = new createjs.Container();
-	
-	for (var i = 0; i < moveTiles.length; i++) {	
-		var tile = 	moveTiles[i];	
-		var moveborder = new createjs.Bitmap(EOE.images.getResult('border-move'));	
-		moveborder.x = tile.x + this.offsetX;
-		moveborder.y = tile.y + this.offsetY;
-		moveTilesContainer.addChild(moveborder);
-	}
-		
-	this.frontStage.addChild(moveTilesContainer);
-	this.moveTilesContainer = moveTilesContainer;
-}
-
-
-// returns an array of TILEs based on parameters
-// @param tile - (TILE) origin tile
-// @param mode - (String) 'radius', 'line', 'cone', 'ring'
-// @param settings - (int || String || Object) 
-BOARD.prototype.getTiles = function(tile, mode, settings) {
-	
-	var tiles = [];
-	
-	switch (mode) {
-		
-		// @param settings - (int > 0)
-		case 'radius':
-		
-			//add origin tile
-			//tiles.push(tile);
-			
-			// add tiles around origin		
-				
-			var tempX, tempY, tempId, tempTile;
-			
-			// top left column
-			for (var length = settings; length > 0; length--) {
-				
-				tempX = tile.x - length * (this.tileWidth * 0.5);
-				tempY = tile.y - length * (this.tileHeight * 0.75);
-				tempId = this.getTileIdByCoord(tempX, tempY);
-				if (tempId) {
-					tempTile = this.tiles[tempId];
-					tiles.push(tempTile);
-				}
-				
-				// trailing tiles
-				for (var trail = length - 1; trail > 0; trail--) {
-				
-					trailX = tempX + trail * this.tileWidth;
-					trailY = tempY;
-					tempId = this.getTileIdByCoord(trailX, trailY);
-					if (tempId) {
-						tempTile = this.tiles[tempId];
-						tiles.push(tempTile);
-					}						
-				
-				}
-			}
-			
-			// top right column
-			for (var length = settings; length > 0; length--) {
-				
-				tempX = tile.x + length * (this.tileWidth * 0.5);
-				tempY = tile.y - length * (this.tileHeight * 0.75);
-				tempId = this.getTileIdByCoord(tempX, tempY);
-				if (tempId) {
-					tempTile = this.tiles[tempId];
-					tiles.push(tempTile);
-				}
-				
-				// trailing tiles
-				for (var trail = length - 1; trail > 0; trail--) {
-				
-					trailX = tempX + trail * this.tileWidth * 0.5;
-					trailY = tempY + trail * this.tileHeight * 0.75;
-					tempId = this.getTileIdByCoord(trailX, trailY);
-					if (tempId) {
-						tempTile = this.tiles[tempId];
-						tiles.push(tempTile);
-					}						
-				
-				}
-			}				
-			
-			// right column
-			for (var length = settings; length > 0; length--) {
-				
-				tempX = tile.x + length * this.tileWidth;
-				tempY = tile.y;
-				tempId = this.getTileIdByCoord(tempX, tempY);
-				if (tempId) {
-					tempTile = this.tiles[tempId];
-					tiles.push(tempTile);
-				}
-				
-				// trailing tiles
-				for (var trail = length - 1; trail > 0; trail--) {
-				
-					trailX = tempX - trail * this.tileWidth * 0.5;
-					trailY = tempY + trail * this.tileHeight * 0.75;
-					tempId = this.getTileIdByCoord(trailX, trailY);
-					if (tempId) {
-						tempTile = this.tiles[tempId];
-						tiles.push(tempTile);
-					}						
-				
-				}
-			}			
-			
-			// bottom right column
-			for (var length = settings; length > 0; length--) {
-				
-				tempX = tile.x + length * this.tileWidth * 0.5;
-				tempY = tile.y + length * this.tileHeight * 0.75;
-				tempId = this.getTileIdByCoord(tempX, tempY);
-				if (tempId) {
-					tempTile = this.tiles[tempId];
-					tiles.push(tempTile);
-				}
-				
-				// trailing tiles
-				for (var trail = length - 1; trail > 0; trail--) {
-				
-					trailX = tempX - trail * this.tileWidth;
-					trailY = tempY;
-					tempId = this.getTileIdByCoord(trailX, trailY);
-					if (tempId) {
-						tempTile = this.tiles[tempId];
-						tiles.push(tempTile);
-					}						
-				
-				}
-			}			
-			
-			// bottom left column
-			for (var length = settings; length > 0; length--) {
-				
-				tempX = tile.x - length * this.tileWidth * 0.5;
-				tempY = tile.y + length * this.tileHeight * 0.75;
-				tempId = this.getTileIdByCoord(tempX, tempY);
-				if (tempId) {
-					tempTile = this.tiles[tempId];
-					tiles.push(tempTile);
-				}
-				
-				// trailing tiles
-				for (var trail = length - 1; trail > 0; trail--) {
-				
-					trailX = tempX - trail * this.tileWidth * 0.5;
-					trailY = tempY - trail * this.tileHeight * 0.75;
-					tempId = this.getTileIdByCoord(trailX, trailY);
-					if (tempId) {
-						tempTile = this.tiles[tempId];
-						tiles.push(tempTile);
-					}						
-				
-				}
-			}			
-			
-			// left column
-			for (var length = settings; length > 0; length--) {
-				
-				tempX = tile.x - length * this.tileWidth;
-				tempY = tile.y;
-				tempId = this.getTileIdByCoord(tempX, tempY);
-				if (tempId) {
-					tempTile = this.tiles[tempId];
-					tiles.push(tempTile);
-				}
-				
-				// trailing tiles
-				for (var trail = length - 1; trail > 0; trail--) {
-				
-					trailX = tempX + trail * this.tileWidth * 0.5;
-					trailY = tempY - trail * this.tileHeight * 0.75;
-					tempId = this.getTileIdByCoord(trailX, trailY);
-					if (tempId) {
-						tempTile = this.tiles[tempId];
-						tiles.push(tempTile);
-					}						
-				
-				}
-			}
-		
-		break;		
-	}
-	
-	return tiles;	
-}
-
-
-
+//
 BOARD.prototype.mouseover = function(x, y) {
 	
-	var tileId = this.getTileIdByCoord(x, y);	
+	var tile = this.game.getTileByCoord(x, y);		
 	
-	var currentTile = this.tiles[tileId];	
-	
-	if (currentTile) {
+	if (tile) {
 		var hover = new createjs.Bitmap(EOE.images.getResult('newgrass'));	
-		hover.x = currentTile.x + this.offsetX;
-		hover.y = currentTile.y + this.offsetY;
+		hover.x = tile.boardX + this.offsetX;
+		hover.y = tile.boardY + this.offsetY;
 		var bounds = hover.getBounds();
 		hover.filters = [ new createjs.ColorFilter(1, 1, 1, 1, 255, 255, 255, -200) ];
 		hover.cache( 0, 0, bounds.width, bounds.height );	
 		this.hoverTile = hover;
 		this.frontStage.addChild(hover);	
-	}	
+	}		
 }
 
 
-
+//
 BOARD.prototype.mouseout = function(x, y) {
 	
 	// performance could be improved here possibly by referencing index 'removeChildAt'
@@ -526,41 +358,7 @@ BOARD.prototype.mouseout = function(x, y) {
 }
 
 
-BOARD.prototype.click = function(x, y) {
-	
-	// setup variables
-	var tileId = this.getTileIdByCoord(x, y);	
-	var tile = this.tiles[tileId];	
-	
-	if (this.mousemode == 'create') {
-		
-		//this.selectTile(tile);
-		var unit = getBlock('epoch-editor').selectedUnit;
-		unit != '' ? EOE.game.addUnitRequest(tileId, unit) : false;		
-		
-	} else if (this.mousemode == 'game') {
-		this.selectTile(tile);
-	}
-}
-
-
-BOARD.prototype.rightclick = function(x, y) {
-	
-	var tileId = this.getTileIdByCoord(x, y);
-	var tile = this.tiles[tileId];
-	
-	if (this.mousemode == 'create') {
-		EOE.game.addUnit(tileId, getBlock('epoch-editor').selectedUnit);
-	} else if (this.mousemode == 'game') {
-		var unit = EOE.game.selectedUnit;
-		if (unit) {
-			this.moveUnitRequest(unit, tileId);	
-		}
-	}
-	
-}
-
-
+//
 BOARD.prototype.resize = function(width, height) {
 	
 	this.backgroundCanvas.width = this.frontCanvas.width = this.width = width * 0.98;
@@ -576,6 +374,13 @@ BOARD.prototype.resize = function(width, height) {
 }
 
 
-BOARD.prototype.update = function() {
-	this.frontStage.update();
-}
+//
+BOARD.prototype.click = function(x, y) { this.game.click(x, y); }
+
+
+//
+BOARD.prototype.rightclick = function(x, y) { this.game.rightclick(x, y); }
+
+
+//
+BOARD.prototype.update = function() { this.frontStage.update(); }

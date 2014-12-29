@@ -25,7 +25,7 @@ DISPLAY.prototype.init = function() {
 	var height = this.height;	
 	
 	// gather all layouts
-	var layoutNames = [ 'login', 'lobby', 'epoch' ];
+	var layoutNames = [ 'login', 'lobby', 'epoch', 'game' ];
 	layoutNames.forEach( function(name) {
 		var layout = new LAYOUT(name, width, height);
 		layout.resize(width, height);
@@ -34,7 +34,13 @@ DISPLAY.prototype.init = function() {
 	
 	// choose activelayout
 	if (localStorage.EOE_username) {
-		this.activeLayout = layouts[0];
+		
+		// if username is stored, auto login
+		// this is accomplished through socket.onopen	
+		
+		// switch to lobby
+		this.activeLayout = layouts[1];
+		
 	} else {
 		this.activeLayout = layouts[0];	
 	}
@@ -44,7 +50,7 @@ DISPLAY.prototype.init = function() {
 	// open test mode
 	$(document.body).keypress( function(e) {
 		var key = e.which;
-		if (key == 92) { EOE.display.changeLayout('epoch'); getBlock('epoch-unit-editor').hide(); }
+		if (key == 92) { EOE.game = new GAME('live'); SEND('newgame'); }
 	});
 }
 
