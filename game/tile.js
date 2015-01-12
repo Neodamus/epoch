@@ -2,7 +2,7 @@
 
 function TILE(id) {
 	
-	this.id = id; 			// @TODO: probably needs to be set by server due to client/server mixup with multi users
+	this.id = id;
 	
 	// set by game/server
 	this.x;

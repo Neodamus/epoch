@@ -54,9 +54,22 @@ DISPLAY.prototype.init = function() {
 	});
 }
 
-	
+
+// @TODO DEPRECATE in favor of setactive layout	
 // turns off active layout, displays new layout
 DISPLAY.prototype.changeLayout = function(name) { 
+	var activeLayout = this.activeLayout;		
+	activeLayout.hide();
+	this.layouts.forEach( function(layout) {
+		if (layout.name == name) { activeLayout = layout; }
+	});
+	this.activeLayout = activeLayout;
+	this.activeLayout.show();
+};
+
+
+// turns off active layout, displays new layout
+DISPLAY.prototype.setActiveLayout = function(name) { 
 	var activeLayout = this.activeLayout;		
 	activeLayout.hide();
 	this.layouts.forEach( function(layout) {

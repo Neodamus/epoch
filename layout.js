@@ -68,8 +68,8 @@ LAYOUT.prototype.hide = function() {
 	
 	this.element.css('visibility', 'hidden');
 	this.element.css('top', '-1000px');
-	this.element.css('width', '0');
-	this.element.css('height', '0');
+	//this.element.css('width', '0');
+	//this.element.css('height', '0');
 	
 	this.blocks.forEach( function(block) {
 		block.hide();
@@ -82,8 +82,6 @@ LAYOUT.prototype.show = function() {
 	
 	this.element.css('visibility', 'visible');
 	this.element.css('top', '0');
-	this.element.css('width', this.width + 'px');
-	this.element.css('height', this.height + 'px');	
 	
 	this.blocks.forEach( function(block) {
 		block.show();

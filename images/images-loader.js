@@ -30,7 +30,7 @@ IMAGES_LOADER.prototype.loadAssets = function () {
 	queue.installPlugin(createjs.Sound);
 	
 	var callBack = function() { 
-		EOE.images = this.queue; 
+		EOE.images = this.queue;
 		if (EOE.socket.readyState == 1) { 
 			/*
 			console.log('images loaded');
@@ -53,6 +53,12 @@ IMAGES_LOADER.prototype.loadAssets = function () {
 			EOE.images_loader.startLoad(JSON.parse(data));
 		}
 	});
+}
+
+
+//
+IMAGES_LOADER.prototype.processQueueIntoImageData = function () {
+	// @TODO change the output of EOE.images so its optimal to work with -- store image and copy or go to source everytime?
 }
 
 

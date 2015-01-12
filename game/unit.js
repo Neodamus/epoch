@@ -50,5 +50,29 @@ UNITDATA.prototype.set = function(unitdata) {
 	}
 	unitdata.forEach( setUnit.bind(this) );
 	
+	// sets the images of the editor  @TODO: trigger this on the setUNITDATA event
 	getBlock('epoch-editor').setUnitImages();
+	
+	// set off the event that unit data has been received
+	var setEvent = new CustomEvent('setUNITDATA', { detail: this } );
+	window.dispatchEvent(setEvent);
+}
+
+
+// returns all the types of units for a given element
+// STRING element - 'fire', 'air', etc.
+UNITDATA.prototype.getUnitTypesByElement = function(element) {
+	
+	var unitTypes = [];
+	
+	for (var property in this) {
+		if (this.hasOwnProperty(property)) {
+			var unit = this[property];
+			var attributes = JSON.parse(unit.attributes);
+			var unitElement = attributes.element;
+			if (unitElement == element) { unitTypes.push(property); }
+		}
+	}
+	
+	return unitTypes;
 }

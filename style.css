@@ -38,17 +38,7 @@ div, span, h1, h2, h3, p, table, th, tr, td { border: 0; margin: 0; padding: 0; 
 	 margin: auto;		
 }
 
-.fullw { width: 100%; }
-.fullh { height: 100%; }
-.fullwh { width: 100%; height: 100%; }
-
-.left { float: left; }
-.right { float: right; }
-
-.cOH { display: block; position: relative; margin: 0 auto 0 auto; } /*centerOnHorizontal*/
-.cOV { display: table-cell; width: inherit; height: inherit; vertical-align: middle; } /*centerOnVertical*/
-
-.layout { visibility: hidden; position: absolute; top: -1000px; }
+.layout { position: absolute; visibility: hidden; top: -1000px; transition: top 1.0s; }
 .block { position: absolute; }
 
 #login-menu { width: 240px; height: 180px; background-color: black; border: 3px solid gray; }
@@ -99,16 +89,47 @@ div, span, h1, h2, h3, p, table, th, tr, td { border: 0; margin: 0; padding: 0; 
 
 
 /* GAME UI */
-#epoch-ui { pointer-events: none; }
+#epoch-ui { pointer-events: none; position: relative; transition: top 1.0s; }
 #epoch-ui div { pointer-events: visible; }
+#epoch-ui > div { position: absolute; overflow: hidden; transition: all 1.0s; }	/* ui child elements */
 
-#epoch-ui .sidebar { background-color: black; width: 25%; height: 100%; position: absolute; right: 0; top: 0; } 
-
-#epoch-ui .timer { background-color: rgba(50, 50, 50, 0.5); width: 18%; height: 25%; position: absolute; right: 19%; bottom: 0; border: 2px solid rgba(100, 100, 100, 0.2); }
+#epoch-ui .timer { background-color: rgba(50, 50, 50, 0.5); width: 18%; height: 25%; position: absolute; right: 0; bottom: 0; border: 2px solid rgba(100, 100, 100, 0.2); }
 #epoch-ui .timer div { width: 100%; clear: left; float: left; }
 #epoch-ui .timer > div:last-child { height: 35%; position: absolute; bottom: 0; }
 #epoch-ui .timer .ready { width: 80%; height: 2em; line-height: 2em; margin: 0.5em auto; float: none; border: 1px solid rgba(100, 100, 100, 0.2); background-color: rgba(50, 50, 50, 0.5); vertical-align: middle; color: #DDD; font-size: 1.5em; text-align: center; cursor: default; -webkit-user-select: none; -moz-user-select: none; transition: all 0.3s; }
 #epoch-ui .timer .ready:hover { background-color: rgba(100, 100, 100, 0.5); transition: all 0.3s;  color: rgba(240, 240, 0, 0.8); }
+
+#epoch-ui .selection-screen { width: 100%; height: 100%; background-color: #303030; }
+
+#epoch-ui .selection-screen > div { position: absolute; border-radius: 10px; background-color: rgba(150, 150, 150, 0.2); }
+#epoch-ui .selection-screen .unit-grid { width: 96%; height: 44%; top: 2%; left: 2%; }
+#epoch-ui .selection-screen .unit-selections { width: 96%; height: 25%; top: 48%; left: 2%; }
+
+#epoch-ui .selection-screen .unit-grid .element-box { position: absolute; width: 16%; height: 90%; top: 5%; border-radius: 10px; }
+#epoch-ui .selection-screen .unit-grid .fire { left: 2%; background-color: #e80000; }
+#epoch-ui .selection-screen .unit-grid .air { left: 22%; background-color: #f6ffd6; }
+#epoch-ui .selection-screen .unit-grid .earth { left: 42%; background-color: #799c00; }
+#epoch-ui .selection-screen .unit-grid .lightning { left: 62%; background-color: #fffd48; }
+#epoch-ui .selection-screen .unit-grid .water { left: 82%; background-color: #6facff; }
+
+#epoch-ui .selection-screen .unit-grid .element-box div { float: left; width: 50%; height: auto; }
+#epoch-ui .selection-screen .unit-grid .element-box img { width: 100%; height: 100%; }
+
+#epoch-ui .selection-screen .unit-selections > div { position: absolute; height: 90%; top: 5%; }
+#epoch-ui .selection-screen .unit-selections .players-list { width: 20%; left: 2%; }
+#epoch-ui .selection-screen .unit-selections .selections-list { width: 75%; left: 25%; }
+
+#epoch-ui .selection-screen .unit-selections .players-list div { width: 100%; height: 50%; list-style-type: none; color: white; vertical-align: middle; text-align: center; }
+
+#epoch-ui .sidebar { background-color: black; width: 25%; height: 100%; position: absolute; right: 0; top: 0; } 
+
+#epoch-ui .placement-bar { width: 0; height: 8%; position: absolute; bottom: 0; right: calc(37% + 4px); background-color: rgba(100, 100, 100, 0.5);  transition: all 1s; }
+#epoch-ui .placement-bar div { position: relative; display: inline-block; transition: all 0.5s; }
+#epoch-ui .placement-bar div:hover { background-color: rgba(150, 150, 150, 0.5); transition: all 0.5s; }
+#epoch-ui .placement-bar img:first-child { width: 69%; height: 80%; margin: 10% auto 0; display: block; transition: all 0.5s; }
+#epoch-ui .placement-bar img.placed { filter: grayscale(100%); -webkit-filter: grayscale(100%); transition: all 0.5s; }
+#epoch-ui .placement-bar img:last-child { position: absolute; top: 0; width: 81%; height: 95%; margin: 2% 9% 0; display: none; }
+#epoch-ui .placement-bar .selected img:last-child { display: block; }
 
 
 /* EDITOR */

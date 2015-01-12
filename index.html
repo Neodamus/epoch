@@ -8,7 +8,9 @@
 <body>
 <div id="background">
 <div id="wrapper" class="center">
-
+	
+    <div style="position: relative; width: 100%; height: 100%;"><!-- relative div wrapper -->
+    
 	<div id="login" class="layout">
 		<div id="login-menu" class="center block">
         	<div id="login-menu-text" class="row">Enter</div>
@@ -24,6 +26,22 @@
         </div>
         <div id="epoch-ui" class="block">
         	<div class="sidebar"></div>
+            <div class="placement-bar"></div>
+        	<div class="selection-screen">
+            	<div class="unit-grid">
+                	<div style="position: relative; height: 100%;">
+                        <div class="element-box fire"></div>
+                        <div class="element-box air"></div>
+                        <div class="element-box earth"></div>
+                        <div class="element-box lightning"></div>
+                        <div class="element-box water"></div>
+                    </div>
+                </div>
+                <div class="unit-selections">
+                	<div class="players-list"></div>
+                    <div class="selections-list"></div>
+                </div>            
+            </div>
             <div class="timer">
             	<div><div class="ready">Ready</div></div>
             </div>
@@ -107,14 +125,14 @@
         	<div id="lobby-chat-box"></div>
         </div>
         <div id="lobby-chat-input" class="block">
-        	<div style="height: 100%; padding: 0 10px;" class="left">
+        	<div style="height: 100%; padding: 0 10px; float: left;">
                 <input style="width: 75%; height: 24px; position: absolute; top: 0; bottom: 0; margin: auto; padding: 0 10px;" type="text" id="lobby-chat-input-text" placeholder="Chat here">
-            </div>
-        	<div style="height: 100%;" class="left">            
+            </div>          
                 <input style="width: 10%; height: 24px; position: absolute; top: 0; bottom: 0; left: 85%; margin: auto;"type="button" id="lobby-chat-input-button" value="Send">
-            </div>
         </div>
     </div>
+    
+    </div><!-- end relative div -->
     
 </div>
 </div>
@@ -136,7 +154,6 @@
 <script src="game/unit.js"></script>
 <script src="game/ui.js"></script>
 <script src="epoch.js"></script>
-
 
 </body>
 </html>

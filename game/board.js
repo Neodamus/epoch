@@ -22,6 +22,10 @@ function BOARD(game) {
 	this.tileWidth = 70; 						// width of tile in pixels
 	this.tileHeight = 82; 						// height of tile in pixels
 	
+	this.imageScale = 0.8;	
+	this.imagePaddingLeft = this.tileWidth * 0.1; 
+	this.imagePaddingTop = this.tileHeight * 0.1;
+	
 	// createjs variables
 	this.tileBitmapsContainer;					// createjs.Container -- contains all the createjs.Bitmap elements for interactive tiles
 	this.tileBitmaps; 							// [ createjs.Bitmap ] -- equal to this.tileBitmapsContainer.children;	
@@ -29,6 +33,7 @@ function BOARD(game) {
 	this.unitBitmapsContainer;					// createjs.Container -- contains all the createjs.Bitmap elements for units
 	this.unitBitmaps;							// [ createjs.Bitmap ] -- equal to this.unitBitmapsContainer.children;
 	
+	this.placementTileBitmapsContainer = null;	// createjs.Container -- contains all the createjs.Bitmap elements for placement tiles
 	this.activeTileBitmapsContainer = null;		// createjs.Container -- contains all the createjs.Bitmap elements for active tiles
 	
 	this.hoverTile;								// createjs.Bitmap
@@ -174,10 +179,10 @@ BOARD.prototype.initTiles = function() {
 		// SHOW NUMBERS
 		var showNumbers = false;
 		if (showNumbers) {
-		var text = new createjs.Text(index, "20px Arial", "#fff");
-			text.x = tile.x + (bounds.width - text.getMeasuredWidth()) / 2;
-			text.y = tile.y + (bounds.height - text.getMeasuredHeight()) / 2;
-			tiles.addChild(text);
+		var text = new createjs.Text(i, "20px Arial", "#fff");
+			text.x = tile.boardX + (bounds.width - text.getMeasuredWidth()) / 2;
+			text.y = tile.boardY + (bounds.height - text.getMeasuredHeight()) / 2;
+			boardTiles.addChild(text);
 		}
 		
 	}	
@@ -210,8 +215,10 @@ BOARD.prototype.initTiles = function() {
 BOARD.prototype.addUnitBitmap = function(tile, type) {
 	
 	var unitBitmap = new createjs.Bitmap(EOE.images.getResult(type));
-	unitBitmap.x = tile.boardX + this.offsetX;
-	unitBitmap.y = tile.boardY + this.offsetY;
+	unitBitmap.x = tile.boardX + this.offsetX + this.imagePaddingLeft;
+	unitBitmap.y = tile.boardY + this.offsetY + this.imagePaddingTop;
+	unitBitmap.scaleX = this.imageScale;
+	unitBitmap.scaleY = this.imageScale;
 	
 	this.unitBitmapsContainer.addChild( unitBitmap );
 	
@@ -252,14 +259,23 @@ BOARD.prototype.setActiveTileBitmaps = function(activeTiles) {
 		activeTileBitmapsContainer.addChild(border);
 	}
 	
-	// add to board and add active tile bitmaps to stage	
-	this.activeTileBitmapsContainer = activeTileBitmapsContainer;
-	this.frontStage.addChild(this.activeTileBitmapsContainer);
+	// add to board and add active tile bitmaps or placement tiles to stage
+	var phase = this.game.phase;
+	if (phase == 'placement' && activeTileBitmapsContainer.children.length > 1) {
+		this.placementTileBitmapsContainer = activeTileBitmapsContainer;
+		this.frontStage.addChild(this.placementTileBitmapsContainer);			
+	} else if (phase == 'combat' || activeTileBitmapsContainer.children.length == 1) {
+		this.activeTileBitmapsContainer = activeTileBitmapsContainer;
+		this.frontStage.addChild(this.activeTileBitmapsContainer);		
+	}
 }
 
 
 //
 BOARD.prototype.removeActiveTileBitmaps = function() {
+	
+	// remove placement tiles if any
+	if (this.game.phase == 'combat') { this.frontStage.removeChild(this.placementTileBitmapsContainer); }
 	
 	// remove active tiles if there are any
 	if (this.activeTileBitmapsContainer) { this.frontStage.removeChild(this.activeTileBitmapsContainer); }			
@@ -332,7 +348,7 @@ BOARD.prototype.moveUnitResponse = function(unitId, destinationTileId) {
 */
 
 
-//
+// @TODO make x, y into tileId to prevent dual for-loop searches
 BOARD.prototype.mouseover = function(x, y) {
 	
 	var tile = this.game.getTileByCoord(x, y);		

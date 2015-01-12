@@ -3,6 +3,15 @@ function UI(game) {
 	// UI needs a reference to game to pass it input
 	this.game = game;
 	
+	// UI elements
+	this.container = $('#epoch-ui');
+	this.selectionScreen = $('#epoch-ui .selection-screen');
+	this.placementBar = $('#epoch-ui .placement-bar');
+	this.timer = $('#epoch-ui .timer');
+	
+	// holds units that can be placed during the placement phase	
+	this.placeableUnits = [];
+	
 	// add ui click event -- probably dont need this since ui should never really need to know if its clicked, only elements do
 	/*
 	var click = function(event) {
@@ -21,12 +30,7 @@ function UI(game) {
 			event.stopPropagation();
 			
 			// change text/send game messages
-			this.game.setReady(!this.game.ready);
-			
-			// set text of element
-			var readyButton = $('#epoch-ui .timer .ready');
-			var readyButtonHtml = this.game.ready ? 'Not Ready' : 'Ready';
-			readyButton.html(readyButtonHtml); 				
+			this.game.setReady(!this.game.ready);			
 		}
 	}
 	$('#epoch-ui .timer .ready').click( readyClick.bind(this) );
@@ -42,30 +46,150 @@ function UI(game) {
 }
 
 
-// width and height are incoming values to size to
-UI.prototype.resize = function(width, height) { 
+//
+UI.prototype.startSelection = function() {
 	
-    var name = $('#unit-name');
-    name.css('font-size', name.height() - 2);
+	// UNIT GRID
+	// get all unit types by element and display them along with click events, is set on setUNITDATA event
+	// runs by event because unitdata will not be set before selection screen opens @TODO getUNITDATA on connect rather than game start
+	var displayAllUnits = function(event) {
+		
+		// set unitdata
+		var unitdata = event.detail;
+		
+		// loop through all elements
+		var elements = this.game.elements;
+		for (var elementsIndex = 0; elementsIndex < elements.length; elementsIndex++) {
+			
+			// set variables
+			var currentElement = elements[elementsIndex];
+			var unitGridElementBox = $('#epoch-ui .selection-screen .' + currentElement);			
+			
+			// get all unit types from element
+			var unitTypes = unitdata.getUnitTypesByElement(currentElement);
+			
+			// loop through all unit types
+			for (var unitTypesIndex = 0; unitTypesIndex < unitTypes.length; unitTypesIndex++) {
+				
+				// get current unit type
+				var unitType = unitTypes[unitTypesIndex];
+				
+				// draw image	
+				unitGridElementBox
+					.append( $('<div>') 
+					
+						// append image
+						.append( $(EOE.images.getResult(unitType))						
+							.off()		// turn off event listeners
+							.removeAttr('class')
+							.attr( 'style', 'width: 70%; margin: 15%;' )
+							.attr( 'id', 'unit-grid-' + unitType )
+							.click( { game: this.game, unitType: unitType }, function(event) {
+									
+									var game = event.data.game;
+									var unitType = event.data.unitType;
+									
+									game.selectUnitRequest(unitType);
+								
+								}
+							)
+						)
+						
+						// hover image overlay
+						// .append( $(EOE.images.getResult(unitHover)) )
+					)
+				;			
+			}			
+		}
+	}
+	window.addEventListener('setUNITDATA', displayAllUnits.bind(this) );
+	
+	
+	// UNIT SELECTIONS
+		
+	// setup players list
+	var playersListWrapper = this.selectionScreen.find('.players-list');
+	var playersList = this.game.playersList;
+	for (var i = 0; i < playersList.length; i++) {	
+	
+		var playerName = playersList[i];
+		
+		var wrapperHeight = playersListWrapper.height();
+		var lineHeight = wrapperHeight * 0.5;
+		var fontSize = lineHeight * 0.4;
+		
+		playersListWrapper.append( $('<div>')
+			.html(playerName)				
+			.css( { lineHeight: lineHeight + 'px', fontSize: fontSize + 'px' } )	
+		);
+	}
+	
+	
+	// setup pick responses
+	
+}
 
-    var healthstat = $('#stats-health-font');
-    healthstat.css('font-size', healthstat.height() / 2 - 2);
 
-    var movementstat = $('#stats-movement-font');
-    movementstat.css('font-size', movementstat.height() / 2 - 2);
+//
+UI.prototype.startPlacement = function() {
+	
+	var placementBar = this.placementBar;
+	
+	// hide selection screen
+	this.selectionScreen.height(0);
+	
+	// move timer over
+	this.timer.css('right', '19%');
+	
+	// get valid placeable units based on which army this player is
+	this.game.units.forEach( function(unit, id) {
+		if (unit.army == this.game.army) { this.placeableUnits.push(unit); }
+	}, this);
+	
+	// set width of placement bar based on number of units
+	var placeableUnits = this.placeableUnits;
+	var unitImageContainerWidth = placementBar.height();
+	var placementBarWidth = unitImageContainerWidth * placeableUnits.length;
+	placementBar.width(placementBarWidth);
+	
+	// put units in placement bar
+	placeableUnits.forEach( function(unit, id) {
+			
+		// add unit image based on unit type
+		var type = unit.type;
+		var unitImageSrc = $(EOE.images.getResult(type)).attr('src');
+		var selectTileSrc = $(EOE.images.getResult('tiletype-active')).attr('src');
+		this.placementBar.append(
+			$('<div>')
+				.width(unitImageContainerWidth)
+				.height(unitImageContainerWidth)
+				.attr('id', id)
+				.click( function() { 
+					var div = $(this);
+					div.parent().children().removeClass('selected');
+					div.addClass('selected');				
+				})
+				.append( $('<img>')
+					.attr('src', unitImageSrc)
+				)
+				.append( $('<img>')
+					.attr('src', selectTileSrc) 
+				)
+		);
+		
+		// select first unit
+		this.placementBar.children().eq(0).addClass('selected');
+					
+	}, this);
+	
+}
 
-    var blockstat = $('#stats-blocks-font');
-    blockstat.css('font-size', blockstat.height() / 2 - 2);
 
-    var defensestat = $('#stats-defense-font');
-    defensestat.css('font-size', defensestat.height() *0.55);
-
-    var attackstat = $('#stats-attacks-font');
-    attackstat.css('font-size', attackstat.height() / 2 - 2);
-
-    var damagestat = $('#stats-damage-font');
-    damagestat.css('font-size', damagestat.height() *0.55);
-
+UI.prototype.startCombat = function() {
+	
+	// minimize placement bar
+	this.placementBar.width(0);
+	
 }
 
 
@@ -232,6 +356,40 @@ UI.prototype.setUnit = function(unit) {
 //
 UI.prototype.click = function(x, y) {
 	console.log('ui was clicked');
+}
+
+
+// width and height are incoming values to size to
+UI.prototype.resize = function(width, height) { 
+	
+    var name = $('#unit-name');
+    name.css('font-size', name.height() - 2);
+
+    var healthstat = $('#stats-health-font');
+    healthstat.css('font-size', healthstat.height() / 2 - 2);
+
+    var movementstat = $('#stats-movement-font');
+    movementstat.css('font-size', movementstat.height() / 2 - 2);
+
+    var blockstat = $('#stats-blocks-font');
+    blockstat.css('font-size', blockstat.height() / 2 - 2);
+
+    var defensestat = $('#stats-defense-font');
+    defensestat.css('font-size', defensestat.height() *0.55);
+
+    var attackstat = $('#stats-attacks-font');
+    attackstat.css('font-size', attackstat.height() / 2 - 2);
+
+    var damagestat = $('#stats-damage-font');
+    damagestat.css('font-size', damagestat.height() *0.55);
+	
+	// position placement bar
+	/*
+	this.placementBar.css('bottom', '0');	
+	var right = width * 0.37 + 4;
+	this.placementBar.css('right', right + 'px');
+	*/
+
 }
 
 function tooltip() {

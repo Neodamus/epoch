@@ -397,7 +397,7 @@ BLOCK.prototype.init = function() {
 			
 			// resize
 			var resize = function() {
-				// @TODO: need to resize widths and heights of menus here	
+					
 			}
 			this.resizeFunction = resize.bind(this);
 		
